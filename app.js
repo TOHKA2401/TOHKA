@@ -186,7 +186,7 @@ async function validarYEntrar(jsonString, user, pass) {
             procesarGastosRecurrentes(); limpiarFiltrosAvanzados(); popularSelectsAvanzados(); actualizarTodo(); renderizarDatosPerfil(); gestionarSaludoCamaleonico();
             const tab = localStorage.getItem('core_ultima_pestana') || 'vista-general'; const btn = document.querySelector(`.tab-btn[onclick*="${tab}"]`); if(btn) cambiarPestana(tab, btn); else cambiarPestana(tab, null);
         } else { mostrarAlerta("Acceso denegado", "Credenciales incorrectas."); }
-    } catch (err) { mostrarAlerta("Error", "El archivo está dañado o no es válido."); }
+    } catch (err) { mostrarAlerta("Archivo dañado", "El archivo en la nube se guardó corrupto. Ve a Google Drive, borra 'CORE_Vault.json' y genera la cuenta otra vez."); }
 }
 
 function dispararAutoSync() {
@@ -207,9 +207,14 @@ async function sincronizarNube() {
     if (!driveFileId) return false;
     const contenido = JSON.stringify(misDatos);
     try {
-        const file = new Blob([contenido], {type: 'application/json'}); const metadata = { name: 'CORE_Vault.json', mimeType: 'application/json' }; const form = new FormData();
-        form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' })); form.append('file', file);
-        await fetch('https://www.googleapis.com/upload/drive/v3/files/' + driveFileId + '?uploadType=multipart', { method: 'PATCH', headers: { Authorization: 'Bearer ' + gapi.client.getToken().access_token }, body: form });
+        await fetch('https://www.googleapis.com/upload/drive/v3/files/' + driveFileId + '?uploadType=media', { 
+            method: 'PATCH', 
+            headers: { 
+                'Authorization': 'Bearer ' + gapi.client.getToken().access_token,
+                'Content-Type': 'application/json'
+            }, 
+            body: contenido 
+        });
         return true;
     } catch (e) { return false; }
 }
@@ -250,9 +255,17 @@ async function generarNuevaBoveda() {
 
     if (gapiInited && gisInited && gapi.client.getToken()) {
         try {
-            const file = new Blob([contenido], {type: 'application/json'}); const metadata = { name: 'CORE_Vault.json', mimeType: 'application/json' }; const form = new FormData();
-            form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' })); form.append('file', file);
-            const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', { method: 'POST', headers: { Authorization: 'Bearer ' + gapi.client.getToken().access_token }, body: form });
+            const boundary = '-------314159265358979323846';
+            const delimiter = "\r\n--" + boundary + "\r\n";
+            const close_delim = "\r\n--" + boundary + "--";
+            const metadata = { name: 'CORE_Vault.json', mimeType: 'application/json' };
+            const multipartRequestBody = delimiter + 'Content-Type: application/json\r\n\r\n' + JSON.stringify(metadata) + delimiter + 'Content-Type: application/json\r\n\r\n' + contenido + close_delim;
+
+            const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', { 
+                method: 'POST', 
+                headers: { 'Authorization': 'Bearer ' + gapi.client.getToken().access_token, 'Content-Type': 'multipart/related; boundary=' + boundary }, 
+                body: multipartRequestBody 
+            });
             const data = await response.json(); driveFileId = data.id; localStorage.setItem('core_drive_id', driveFileId);
             cerrarModal('registro-boveda-modal'); mostrarAlerta("¡Cuenta creada!", "Tu bóveda se guardó en Google Drive. Ingresa tus datos para acceder.");
         } catch (e) { mostrarAlerta("Error", "No se pudo crear en Google Drive."); }
@@ -383,11 +396,11 @@ function guardarPerfil() { misDatos.seguridad.perfil = { nombres: document.getEl
 function abrirModalRegistro() { document.getElementById('reg-tipo').value = 'Egreso'; document.getElementById('reg-subtipo').value = 'General'; document.getElementById('reg-detalle').value = ''; document.getElementById('reg-monto').value = ''; document.getElementById('reg-fecha').value = new Date().toISOString().split('T')[0]; verificarFormularioRegistro(); document.getElementById('registro-modal').style.display = 'flex'; vibrar(15); document.getElementById('reg-detalle').focus(); }
 
 const ninjaDict = {
-    'supermaxi': {tipo: 'Egreso', cat: 'Alimentación'}, 'tia': {tipo: 'Egreso', cat: 'Alimentación'}, 'almuerzo': {tipo: 'Egreso', cat: 'Alimentación'},
-    'uber': {tipo: 'Egreso', cat: 'Transporte'}, 'bus': {tipo: 'Egreso', cat: 'Transporte'}, 'gasolina': {tipo: 'Egreso', cat: 'Transporte'},
-    'luz': {tipo: 'Egreso', cat: 'Servicios Básicos'}, 'agua': {tipo: 'Egreso', cat: 'Servicios Básicos'}, 'internet': {tipo: 'Egreso', cat: 'Servicios Básicos'},
+    'supermaxi': {tipo: 'Egreso', cat: 'Alimentación'}, 'tia': {tipo: 'Egreso', cat: 'Alimentación'}, 'almuerzo': {tipo: 'Egreso', cat: 'Alimentación'}, 'comida': {tipo: 'Egreso', cat: 'Alimentación'}, 'panaderia': {tipo: 'Egreso', cat: 'Alimentación'},
+    'uber': {tipo: 'Egreso', cat: 'Transporte'}, 'bus': {tipo: 'Egreso', cat: 'Transporte'}, 'gasolina': {tipo: 'Egreso', cat: 'Transporte'}, 'taxi': {tipo: 'Egreso', cat: 'Transporte'},
+    'luz': {tipo: 'Egreso', cat: 'Servicios Básicos'}, 'agua': {tipo: 'Egreso', cat: 'Servicios Básicos'}, 'internet': {tipo: 'Egreso', cat: 'Servicios Básicos'}, 'claro': {tipo: 'Egreso', cat: 'Servicios Básicos'},
     'cine': {tipo: 'Egreso', cat: 'Entretenimiento'}, 'netflix': {tipo: 'Egreso', cat: 'Entretenimiento'}, 'spotify': {tipo: 'Egreso', cat: 'Entretenimiento'},
-    'sueldo': {tipo: 'Ingreso', cat: null}, 'pago': {tipo: 'Ingreso', cat: null}, 'ahorro': {tipo: 'Ahorro', cat: null}
+    'sueldo': {tipo: 'Ingreso', cat: null}, 'pago': {tipo: 'Ingreso', cat: null}, 'venta': {tipo: 'Ingreso', cat: null}, 'ahorro': {tipo: 'Ahorro', cat: null}
 };
 function ninjaInputListener() {
     const val = document.getElementById('reg-detalle').value.toLowerCase().trim();
@@ -407,7 +420,7 @@ function verificarFormularioRegistro() {
     const tipo = document.getElementById('reg-tipo').value; const isAhorro = tipo === 'Ahorro'; const hint = document.getElementById('label-detalle-hint'); 
     document.getElementById('detalle-container').classList.toggle('hidden', isAhorro); document.getElementById('subtipo-ahorro-container').classList.toggle('hidden', !isAhorro); 
     document.getElementById('caja-gasto-hormiga').classList.toggle('hidden', tipo !== 'Egreso'); document.getElementById('caja-categoria-egreso').classList.toggle('hidden', tipo !== 'Egreso');
-    document.getElementById('reg-gasto-hormiga').checked = false; hint.innerText = '(Ej. Supermaxi, Uber, Sueldo)'; 
+    document.getElementById('reg-gasto-hormiga').checked = false; hint.innerText = ''; 
     if(isAhorro) verificarDestinoAhorro(); 
 }
 

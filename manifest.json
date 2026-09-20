@@ -1,11 +1,10 @@
 {
-  "name": "C.O.R.E. by TOHKA",
+  "name": "C.O.R.E. Bóveda Financiera",
   "short_name": "C.O.R.E.",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#18191a",
-  "theme_color": "#1877f2",
-  "description": "Control Operativo de Recursos Económicos",
+  "theme_color": "#0099a8",
   "icons": [
     {
       "src": "icon-192.png",

@@ -9,8 +9,8 @@
     <meta name="theme-color" content="#18191a">
     <link rel="apple-touch-icon" href="icon-192.png">
 
+    <!-- LIBRERÍAS EXTERNAS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
     <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 
@@ -53,7 +53,11 @@ input:focus, select:focus { border-color: var(--primary); }
 select { background-color: var(--bg-card) !important; color: var(--text-main) !important; }
 select option { background-color: var(--bg-card); color: var(--text-main); padding: 10px; }
 textarea { min-height: 80px; max-height: 150px; resize: none; overflow-y: auto; }
-input.peigo-input { font-size: 18px; font-weight: bold; font-variant-numeric: tabular-nums; letter-spacing: 1px; }
+input.peigo-input { font-size: 16px; font-weight: bold; font-variant-numeric: tabular-nums; letter-spacing: 1px; width: 100%; box-sizing: border-box; }
+
+/* Eliminar barra scroll del input number */
+input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 
 .fade-in { animation: smoothFadeIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 @keyframes smoothFadeIn { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
@@ -83,8 +87,8 @@ input.peigo-input { font-size: 18px; font-weight: bold; font-variant-numeric: ta
 
 #app-container { display: none; max-width: 1050px; margin: 30px auto; padding: 0 20px 50px 20px; }
 .app-header-premium { display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 20px 25px; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 25px; position: relative;}
-.header-brand { display: flex; align-items: center; gap: 15px; flex: 1;}
-.brand-icon-box { background: transparent; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease-in-out; flex-shrink: 0;}
+.header-brand { display: flex; align-items: center; gap: 12px; flex: 1;}
+.brand-icon-box { background: transparent; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease-in-out; flex-shrink: 0;}
 .brand-icon-box img { width: 100%; height: 100%; object-fit: contain; }
 
 .fab-btn { display: none; position: fixed; bottom: 90px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; box-shadow: 0 6px 20px rgba(0, 153, 168, 0.4); z-index: 1500; font-size: 24px; align-items: center; justify-content: center; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); border: none; padding: 0;}
@@ -92,21 +96,20 @@ input.peigo-input { font-size: 18px; font-weight: bold; font-variant-numeric: ta
 
 body.stealth-active .monto-stealth { filter: blur(8px) opacity(0.7); user-select: none; transition: filter 0.3s ease; }
 body.stealth-active .stealth-target { transition: all 0.3s ease; }
-#stealth-icon { transition: stroke 0.3s; }
+#stealth-icon { stroke: var(--text-muted); transition: stroke 0.3s; }
 body.stealth-active #stealth-icon { stroke: var(--primary); }
 
-.config-header-btn { background: transparent; color: var(--text-muted); padding: 8px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; border: 1px solid transparent; margin-left: auto; }
+.config-header-btn { background: transparent; color: var(--text-muted); padding: 8px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; border: 1px solid transparent; }
 .config-header-btn:hover { color: var(--primary); background: rgba(0, 153, 168, 0.15); }
-.config-header-btn svg { width: 24px; height: 24px; }
+.config-header-btn svg { width: 22px; height: 22px; }
 
-.header-actions { display: flex; gap: 12px; align-items: center; }
+.header-actions { display: flex; gap: 5px; align-items: center; justify-content: flex-end;}
 .btn-header { height: 42px; padding: 0 18px; border-radius: 8px; font-weight: 600; font-size: 14px; transition: all 0.2s; box-sizing: border-box; border: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
 .btn-header-primary { background: var(--primary); color: white; }
-.btn-header-outline { background: rgba(0, 153, 168, 0.15); color: var(--primary); }
 
 .tabs { display: flex; background: var(--bg-card); padding: 5px; border-radius: var(--radius); margin-bottom: 25px; box-shadow: var(--shadow); overflow-x: auto; }
 .tab-btn { flex: 1; background: transparent; color: var(--text-muted); padding: 12px; border-radius: 10px; font-weight: 600; transition: background-color 0.2s ease-out, color 0.2s ease-out; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 8px; }
-.tab-btn svg { flex-shrink: 0; width: 22px; height: 22px; }
+.tab-btn svg { flex-shrink: 0; width: 22px; height: 22px; } 
 .tab-btn.active { background: var(--primary); color: white; }
 .tab-content { display: none; } .tab-content.active { display: block; }
 
@@ -211,7 +214,8 @@ input[type="file"] { display: none; }
     .fab-btn { display: flex; }
     .app-header-premium { flex-direction: column; align-items: stretch; gap: 15px; padding: 20px; }
     .header-brand { display: flex; flex-direction: row !important; justify-content: space-between !important; align-items: center !important; width: 100%; text-align: left; gap: 10px;}
-    .brand-text-container { flex: 1; align-items: flex-start !important; text-align: left !important; }
+    .brand-text-container h2 { font-size: 1.3em; margin-bottom: 2px;}
+    .brand-subtitle { font-size: 0.7em;}
     
     .tabs { position: fixed; bottom: 0; left: 0; width: 100%; margin: 0; border-radius: 20px 20px 0 0; z-index: 2000; display: flex; flex-direction: row; justify-content: space-around; overflow-x: auto; padding: 8px 5px 15px 5px; box-shadow: 0 -4px 20px rgba(0,0,0,0.5); background: rgba(36, 37, 38, 0.95); backdrop-filter: blur(10px); border: 1px solid var(--border); border-bottom: none; }
     html:not(.dark-mode) .tabs { background: rgba(255, 255, 255, 0.95); box-shadow: 0 -4px 20px rgba(0,0,0,0.1); }
@@ -252,6 +256,18 @@ html.dark-mode .card, html.dark-mode .banner-patrimonio-clickable, html.dark-mod
 </head>
 <body>
 
+    <!-- Pantalla de Bloqueo por Privacidad -->
+    <div id="lock-screen" class="modal-overlay" style="z-index: 9999; background: var(--bg-body);">
+        <div class="login-card" style="box-shadow: none; width: 100%; max-width: 340px;">
+            <div class="profile-avatar" style="width: 80px; height: 80px; margin: 0 auto 20px auto;"><img src="icon-192.png" alt="Perfil"></div>
+            <h2 style="color: var(--primary); margin-bottom: 10px;">Cámara Bloqueada</h2>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 25px;">Ingresa tu clave para acceder</p>
+            <input type="password" id="lock-pass" placeholder="Contraseña" style="margin-bottom: 20px;">
+            <button onclick="desbloquearApp()" style="width: 100%; margin-bottom: 15px;">Desbloquear</button>
+            <div style="font-size:12px; color:var(--text-muted); cursor:pointer; text-decoration: underline;" onclick="cerrarSesionApp()">Cerrar sesión por completo</div>
+        </div>
+    </div>
+
     <div id="toast-notification">Registro exitoso</div>
     <div id="toast-undo" class="hidden">
         <span>Guardado.</span>
@@ -280,7 +296,7 @@ html.dark-mode .card, html.dark-mode .banner-patrimonio-clickable, html.dark-mod
     <div id="login-modal">
         <div class="login-card">
             <h2 style="color: var(--primary); margin-bottom: 10px;">Bienvenido</h2>
-            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 25px;">Accede a tu bóveda financiera personal</p>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 25px;">Accede a tu cámara acorazada personal</p>
             
             <button onclick="conectarGoogleDrive()" style="width: 100%; margin-bottom: 10px; background: #4285F4; color: white;">Conectar con Google Drive</button>
             <div id="login-drive-status" style="font-size: 11px; margin-bottom: 15px; color: var(--text-muted);">Estado: Desconectado</div>
@@ -306,6 +322,8 @@ html.dark-mode .card, html.dark-mode .banner-patrimonio-clickable, html.dark-mod
                 <span style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 8px;">¿Eres usuario nuevo?</span>
                 <button onclick="abrirModalCrearBoveda()" class="btn-secondary" style="width: 100%;">Generar cuenta</button>
             </div>
+            
+            <div style="font-size: 10px; color: var(--text-muted); margin-top: 25px;">&copy; TOHKA S.A. Derechos Reservados</div>
         </div>
     </div>
 
@@ -315,26 +333,25 @@ html.dark-mode .card, html.dark-mode .banner-patrimonio-clickable, html.dark-mod
                 <div class="brand-icon-box">
                     <img src="icon-192.png" alt="Logo">
                 </div>
-                <div class="brand-text-container" style="flex: 1;">
-                    <h2>C.O.R.E. <span id="network-status-dot" class="status-dot"></span></h2>
-                    <div class="brand-subtitle">V4.0 CORPORATIVE</div>
+                <div class="brand-text-container" style="display:flex; flex-direction:column; justify-content:center;">
+                    <h2 style="font-size: 1.2rem; margin: 0;">C.O.R.E. <span id="network-status-dot" class="status-dot"></span></h2>
+                    <div class="brand-subtitle" style="font-size: 0.75rem; margin-top: 2px;">V4.0 CORPORATIVE</div>
                     <div id="sync-status" style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">Sincronizado</div>
                 </div>
-                <button class="config-header-btn" onclick="toggleStealthMode()">
-                    <svg id="stealth-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 3c-1.5 0-2.8.8-3.5 2L4 9h16l-4.5-4c-.7-1.2-2-2-3.5-2z"></path>
-                        <circle cx="8" cy="14" r="3"></circle>
-                        <circle cx="16" cy="14" r="3"></circle>
-                        <path d="M11 14h2"></path>
+            </div>
+            <div class="header-actions">
+                <button class="config-header-btn" onclick="toggleStealthMode()" title="Modo Incógnito">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="stealth-icon" style="width:22px;height:22px;">
+                        <path d="M2 14l2-6h16l2 6"/><path d="M4 14v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/><path d="M12 14v5"/><circle cx="7" cy="15" r="3"/><circle cx="17" cy="15" r="3"/><path d="M10 9l-2-5-4 2"/>
                     </svg>
                 </button>
-                <button class="config-header-btn" onclick="cambiarPestana('configuracion', null)">
-                    <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path stroke-linecap="round" stroke-linejoin="round" d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                <button class="config-header-btn" onclick="cambiarPestana('configuracion', null)" title="Ajustes">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
                 </button>
-            </div>
-            <div class="header-actions hide-mobile" id="botones-dashboard">
-                <button class="btn-header btn-header-primary" onclick="abrirModalRegistro()">+ Nuevo</button>
-                <button class="btn-header btn-header-outline" onclick="exportarPDFEjecutivo()">PDF</button>
+                <button class="btn-header btn-header-primary hide-mobile" onclick="abrirModalRegistro()" style="margin-left: 5px;">+ Nuevo</button>
             </div>
         </div>
 
@@ -417,8 +434,7 @@ html.dark-mode .card, html.dark-mode .banner-patrimonio-clickable, html.dark-mod
         <div id="movimientos" class="tab-content fade-in">
             <div class="movimientos-header">
                 <div class="movimientos-actions-top">
-                    <button onclick="exportarCSV()" class="btn-excel"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>CSV</button>
-                    <button onclick="exportarPDFEjecutivo()" class="btn-secondary" style="margin-left: 10px;">📄 PDF</button>
+                    <button onclick="exportarExcel()" class="btn-excel" style="display:flex; align-items:center; gap:5px;"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>Excel</button>
                 </div>
                 <div class="filtros-container-unified">
                     <div class="filtro-group"><span>Desde:</span><input type="date" id="filtro-inicio"></div>
@@ -506,10 +522,18 @@ html.dark-mode .card, html.dark-mode .banner-patrimonio-clickable, html.dark-mod
                 </div>
                 <label class="switch"><input type="checkbox" id="toggle-vibro" onchange="toggleVibracion()"><span class="slider"></span></label>
             </div>
+
+            <div class="config-item" style="border-left: 4px solid var(--gold);">
+                <div>
+                    <h3 style="margin-bottom: 5px;">Bloqueo Privado</h3>
+                    <span style="color: var(--text-muted); font-size: 13px;">Pedir clave al abrir la app.</span>
+                </div>
+                <label class="switch"><input type="checkbox" id="toggle-privacidad" onchange="togglePrivacidad()"><span class="slider"></span></label>
+            </div>
             
             <div class="config-item" style="border-left: 4px solid var(--text-muted);">
                 <div>
-                    <span style="color: var(--text-main); font-size: 14px;">Guarda un respaldo y sal de la bóveda.</span>
+                    <span style="color: var(--text-main); font-size: 14px;">Guarda un respaldo y sal de la cámara.</span>
                 </div>
                 <button class="btn-secondary" onclick="cerrarSesionApp()">Cerrar sesión</button>
             </div>
@@ -521,6 +545,10 @@ html.dark-mode .card, html.dark-mode .banner-patrimonio-clickable, html.dark-mod
                 </div>
                 <button style="background: var(--danger); color: white;" onclick="solicitarHardReset()">Restablecer</button>
             </div>
+
+            <div style="text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 30px;">
+                &copy; TOHKA S.A. Derechos Reservados
+            </div>
         </div>
     </div>
 
@@ -528,7 +556,7 @@ html.dark-mode .card, html.dark-mode .banner-patrimonio-clickable, html.dark-mod
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
     </button>
 
-    <div id="registro-boveda-modal" class="modal-overlay"><div class="modal-card modal-sm"><h3 style="color: var(--primary);">Crear nueva cuenta</h3><p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">Se guardará en la nube si estás conectado.</p><label style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; display:block;">Crea tu usuario:</label><input type="text" id="new-boveda-user" placeholder="Ej. juanperez"><label style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; display:block;">Crea tu contraseña:</label><input type="password" id="new-boveda-pass" placeholder="••••••••"><div class="modal-footer"><button onclick="cerrarModal('registro-boveda-modal')" class="btn-secondary">Cancelar</button><button onclick="generarNuevaBoveda()">Generar</button></div></div></div>
+    <div id="registro-boveda-modal" class="modal-overlay"><div class="modal-card modal-sm"><h3 style="color: var(--primary);">Crear nueva cuenta</h3><p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">Se guardará en la nube si estás conectado.</p><label style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; display:block;">Crea tu usuario:</label><input type="text" id="new-boveda-user" placeholder="Ej. juanperez"><label style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; display:block;">Crea tu contraseña:</label><input type="password" id="new-boveda-pass" placeholder="••••••••"><div class="modal-footer"><button onclick="cerrarModal('registro-boveda-modal')" class="btn-secondary">Cancelar</button><button onclick="generarNuevaCamara()">Generar</button></div></div></div>
     
     <div id="registro-modal" class="modal-overlay"><div class="modal-card modal-md">
         <h3>Registrar movimiento</h3>
@@ -565,7 +593,7 @@ html.dark-mode .card, html.dark-mode .banner-patrimonio-clickable, html.dark-mod
     <div id="meta-modal" class="modal-overlay"><div class="modal-card modal-md"><h3>Formulario Meta</h3><label style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; display:block;">Detalle:</label><input type="text" id="meta-nombre" placeholder="Ej. Laptop"><div class="grid-2-cols"><div><label style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; display:block;">Costo ($):</label><input type="text" inputmode="numeric" class="peigo-input" id="meta-costo" placeholder="0.00" oninput="formatearMonedaPeigo(this)"></div><div><label style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; display:block;">Ahorro inicial ($):</label><input type="text" inputmode="numeric" class="peigo-input" id="meta-ahorrado" placeholder="0.00" oninput="formatearMonedaPeigo(this)"></div></div><label style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; display:block;">Descripción (opcional):</label><textarea id="meta-descripcion" placeholder="Detalles del producto..."></textarea><div class="modal-footer"><button onclick="cerrarModal('meta-modal')" class="btn-secondary">Cancelar</button><button onclick="guardarMeta()">Crear</button></div></div></div>
     <div id="modal-nueva-deuda" class="modal-overlay"><div class="modal-card modal-md"><h3 style="color: var(--deuda);">Crear Registro de Deuda</h3><label style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; display:block;">¿A quién o a qué le debes?</label><input type="text" id="nd-nombre" placeholder="Ej. Tarjeta de Crédito, Préstamo Tía"><label style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; display:block;">Monto total de la deuda ($):</label><input type="text" inputmode="numeric" class="peigo-input" id="nd-monto" placeholder="0.00" oninput="formatearMonedaPeigo(this)"><div class="config-item" style="padding: 12px 15px; margin-bottom: 15px; background: var(--overlay-subtle); box-shadow: none; border: 1px solid var(--border);"><div><h4 style="margin-bottom: 2px; font-size: 14px;">Deuda Pasada (Pre-existente)</h4><span style="color: var(--text-muted); font-size: 11px;">Actívalo si es vieja. Apágalo si recibiste dinero HOY.</span></div><label class="switch"><input type="checkbox" id="nd-es-pasada" checked><span class="slider"></span></label></div><div class="modal-footer"><button onclick="cerrarModal('modal-nueva-deuda')" class="btn-secondary">Cancelar</button><button onclick="guardarNuevaDeuda()" style="background: var(--deuda);">Crear Deuda</button></div></div></div>
     <div id="modal-pago-deuda" class="modal-overlay"><div class="modal-card modal-sm"><h3 style="color: var(--deuda);" id="pd-titulo">Abonar a Deuda</h3><div style="background: var(--overlay-bg); padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;"><span style="font-size: 12px; color: var(--text-muted); display: block;">Saldo Pendiente</span><span style="font-size: 24px; font-weight: bold; color: var(--deuda);" id="pd-saldo-pendiente">$0.00</span></div><label style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; display:block;">Monto a pagar hoy ($):</label><input type="text" inputmode="numeric" class="peigo-input" id="pd-monto" placeholder="0.00" oninput="formatearMonedaPeigo(this)"><div class="modal-footer"><button onclick="cerrarModal('modal-pago-deuda')" class="btn-secondary">Cancelar</button><button onclick="procesarPagoDeuda()" style="background: var(--deuda);">Registrar Pago</button></div></div></div>
-    <div id="modal-recurrente" class="modal-overlay"><div class="modal-card modal-md"><h3 style="color: var(--purple);">Nuevo Pago Automático</h3><label style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; display:block;">Detalle del pago:</label><input type="text" id="rec-nombre" placeholder="Ej. Plan Celular Claro"><label style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; display:block;">Categoría:</label><select id="rec-categoria"><option value="Servicios Básicos">Servicios Básicos ⚡</option><option value="Entretenimiento">Entretenimiento 🎬</option><option value="Vivienda">Vivienda 🏠</option><option value="Educación">Educación 📚</option><option value="Otros Gastos">Otros Gastos 🛒</option></select><div class="grid-2-cols"><div><label style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; display:block;">Monto ($):</label><input type="text" inputmode="numeric" class="peigo-input" id="rec-monto" placeholder="0.00" oninput="formatearMonedaPeigo(this)"></div><div><label style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; display:block;">Día del mes:</label><input type="number" inputmode="numeric" id="rec-dia" placeholder="15" min="1" max="31"></div></div><div class="config-item" style="padding: 12px 15px; margin-bottom: 15px; background: var(--overlay-subtle); box-shadow: none; border: 1px solid var(--border);"><div><h4 style="margin-bottom: 2px; font-size: 14px;">Empezar el próximo mes</h4><span style="color: var(--text-muted); font-size: 11px;">Actívalo si ya pagaste esto este mes.</span></div><label class="switch"><input type="checkbox" id="rec-prox-mes" checked><span class="slider"></span></label></div><div class="modal-footer"><button onclick="cerrarModal('modal-recurrente')" class="btn-secondary">Cancelar</button><button onclick="guardarRecurrente()" style="background: var(--purple);">Programar</button></div></div></div>
+    <div id="modal-recurrente" class="modal-overlay"><div class="modal-card modal-md"><h3 style="color: var(--purple);">Pago Automático</h3><label style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; display:block;">Detalle del pago:</label><input type="text" id="rec-nombre" placeholder="Ej. Plan Celular Claro"><label style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; display:block;">Categoría:</label><select id="rec-categoria"><option value="Servicios Básicos">Servicios Básicos ⚡</option><option value="Entretenimiento">Entretenimiento 🎬</option><option value="Vivienda">Vivienda 🏠</option><option value="Educación">Educación 📚</option><option value="Otros Gastos">Otros Gastos 🛒</option></select><div class="grid-2-cols"><div><label style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; display:block;">Monto ($):</label><input type="text" inputmode="numeric" class="peigo-input" id="rec-monto" placeholder="0.00" oninput="formatearMonedaPeigo(this)"></div><div><label style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; display:block;">Día del mes:</label><input type="number" inputmode="numeric" id="rec-dia" placeholder="15" min="1" max="31"></div></div><div class="config-item" style="padding: 12px 15px; margin-bottom: 15px; background: var(--overlay-subtle); box-shadow: none; border: 1px solid var(--border);"><div><h4 style="margin-bottom: 2px; font-size: 14px;">Empezar el próximo mes</h4><span style="color: var(--text-muted); font-size: 11px;">Actívalo si ya pagaste esto este mes.</span></div><label class="switch"><input type="checkbox" id="rec-prox-mes" checked><span class="slider"></span></label></div><div class="modal-footer"><button onclick="cerrarModal('modal-recurrente')" class="btn-secondary">Cancelar</button><button onclick="guardarRecurrente()" style="background: var(--purple);">Programar</button></div></div></div>
     
     <div id="meta-detalle-modal" class="modal-overlay"><div class="modal-card modal-xl meta-detail-layout"><div class="meta-detail-img"><img src="icon-192.png" alt="Meta Logo"><div id="md-badge" class="badge-cumplida hidden">¡META CUMPLIDA!</div></div><div class="meta-detail-info"><div id="md-info-principal"><h2 id="md-titulo" style="margin-bottom: 5px; color: var(--primary);">Titulo</h2><div id="md-fecha-creacion" style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">Creado el: -</div><div id="md-desc" style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5;">Descripción...</div><div style="background: var(--overlay-subtle); padding: 15px; border-radius: 8px; margin-bottom: 20px;"><div style="display: flex; justify-content: space-between; margin-bottom: 10px;"><span style="color: var(--text-main); font-weight: 600;">Costo total:</span><span style="color: var(--text-main); font-weight: bold;" id="md-costo">$0.00</span></div><div style="display: flex; justify-content: space-between; margin-bottom: 2px;"><span style="font-weight: 600; color: var(--text-muted);">Ahorrado:</span><span style="font-weight: bold; color: var(--primary);" id="md-ahorrado">$0.00</span></div><div style="text-align: right;"><span class="link-historial" id="md-btn-historial" onclick="toggleHistorialMeta()">Ver historial</span></div></div><div class="barra-progreso-mini" style="height: 12px; margin-bottom: 5px;"><div id="md-barra" class="progreso-fill-mini"></div></div><div style="text-align: right; font-size: 12px; font-weight: bold; color: var(--text-muted); margin-bottom: 20px;" id="md-porcentaje">0%</div><button id="btn-archivar-meta" class="hidden" style="width: 100%; background: var(--gold); color: #333;" onclick="archivarMetaActual()">Registrar Compra</button></div><div id="md-historial-seccion" class="hidden" style="flex: 1; display: flex; flex-direction: column;"><h4 style="margin-bottom: 10px; color: var(--text-main); border-bottom: 1px solid var(--border); padding-bottom: 5px;">Historial de depósitos<span class="link-historial" style="float: right; font-weight: normal;" onclick="toggleHistorialMeta()">Volver a info</span></h4><div id="md-historial-container"></div></div><div style="margin-top: 25px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 20px;"><button onclick="eliminarMetaActual()" class="btn-secondary btn-danger-text" style="padding: 5px 10px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button><button onclick="cerrarModal('meta-detalle-modal')" class="btn-secondary">Cerrar</button></div></div></div></div>
     
@@ -578,7 +606,7 @@ const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/res
 const SCOPES = 'https://www.googleapis.com/auth/drive.file';
 
 let misDatos = null; let tarjetaActiva = null; let indiceMetaActualVista = null; let indiceDeudaAbono = null; let graficoCircular = null;
-let accionConfirmadaPendiente = null; let accionCancelarPendiente = null;
+let accionConfirmadaPendiente = null; let accionCancelarPendiente = null; let indexEditandoRecurrente = null;
 let tokenClient; let gapiInited = false; let gisInited = false; let driveFileId = null;
 let syncTimeout = null; let ultimoRegistroGuardado = null; 
 
@@ -590,21 +618,14 @@ window.addEventListener('online', updateOnlineStatus); window.addEventListener('
 function updateOnlineStatus() { const dot = document.getElementById('network-status-dot'); if (navigator.onLine) { dot.style.background = 'var(--ingreso)'; dot.title = 'Conectado'; } else { dot.style.background = 'var(--egreso)'; dot.title = 'Modo Local'; } }
 
 function toggleModoOscuro() { const html = document.documentElement; if (html.classList.contains('dark-mode')) { html.classList.remove('dark-mode'); localStorage.setItem('tohka_theme', 'light'); } else { html.classList.add('dark-mode'); localStorage.setItem('tohka_theme', 'dark'); } actualizarToggleUI(); }
-function actualizarToggleUI() { const tTema = document.getElementById('toggle-tema'); if(tTema) tTema.checked = document.documentElement.classList.contains('dark-mode'); const tVibro = document.getElementById('toggle-vibro'); if(tVibro) tVibro.checked = (localStorage.getItem('core_vibro') === 'true'); }
+function actualizarToggleUI() { const tTema = document.getElementById('toggle-tema'); if(tTema) tTema.checked = document.documentElement.classList.contains('dark-mode'); const tVibro = document.getElementById('toggle-vibro'); if(tVibro) tVibro.checked = (localStorage.getItem('core_vibro') === 'true'); if(misDatos && misDatos.seguridad) { const tPriv = document.getElementById('toggle-privacidad'); if(tPriv) tPriv.checked = misDatos.seguridad.pedir_clave_inicio; } }
 function toggleVibracion() { const act = document.getElementById('toggle-vibro').checked; localStorage.setItem('core_vibro', act); if(act) vibrar(50); }
 function vibrar(ms) { if(localStorage.getItem('core_vibro') === 'true' && navigator.vibrate) { navigator.vibrate(ms); } }
 function toggleStealthMode() { const isActive = document.body.classList.toggle('stealth-active'); localStorage.setItem('core_stealth', isActive); vibrar(20); }
+function togglePrivacidad() { misDatos.seguridad.pedir_clave_inicio = document.getElementById('toggle-privacidad').checked; guardarEnMemoriaSession(); }
 
-function formatearMonedaPeigo(input) {
-    let val = input.value.replace(/\D/g, ''); 
-    if (val === '') val = '0';
-    let num = parseInt(val, 10) / 100;
-    input.value = num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-}
-function obtenerValorPeigo(id) {
-    let val = document.getElementById(id).value.replace(/,/g, '');
-    return parseFloat(val) || 0;
-}
+function formatearMonedaPeigo(input) { let val = input.value.replace(/\D/g, ''); if (val === '') val = '0'; let num = parseInt(val, 10) / 100; input.value = num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
+function obtenerValorPeigo(id) { let val = document.getElementById(id).value.replace(/,/g, ''); return parseFloat(val) || 0; }
 
 function gestionarSaludoCamaleonico() {
     const nombre = misDatos.seguridad.perfil.nombres || misDatos.seguridad.usuario || "Joel"; const hora = new Date().getHours(); let saludo = "";
@@ -614,6 +635,12 @@ function gestionarSaludoCamaleonico() {
     else { document.getElementById('camaleon-greeting').innerText = `${saludo}, ${nombre}.`; }
 }
 
+async function desbloquearApp() {
+    const pass = document.getElementById('lock-pass').value; const hashIntento = await hashSHA256(pass);
+    if (pass === misDatos.seguridad.clave || hashIntento === misDatos.seguridad.clave) { document.getElementById('lock-screen').style.display = 'none'; document.getElementById('lock-pass').value = ''; vibrar(20); } 
+    else { mostrarAlerta("Error", "Clave incorrecta."); }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     updateOnlineStatus(); actualizarToggleUI();
     if(localStorage.getItem('core_stealth') === 'true') document.body.classList.add('stealth-active');
@@ -621,11 +648,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if(dataGuardada) {
         misDatos = JSON.parse(dataGuardada);
         if(!misDatos.datos.deudas) misDatos.datos.deudas = []; if(!misDatos.datos.recurrentes) misDatos.datos.recurrentes = []; if(!misDatos.datos.activos) misDatos.datos.activos = [];
+        if(!misDatos.seguridad.pedir_clave_inicio) misDatos.seguridad.pedir_clave_inicio = false;
         document.getElementById('login-modal').style.display = 'none'; document.getElementById('app-container').style.display = 'block';
+        if(misDatos.seguridad.pedir_clave_inicio) { document.getElementById('lock-screen').style.display = 'flex'; }
         procesarGastosRecurrentes(); limpiarFiltrosAvanzados(); popularSelectsAvanzados(); actualizarTodo(); renderizarDatosPerfil(); gestionarSaludoCamaleonico();
         const tab = localStorage.getItem('core_ultima_pestana') || 'vista-general'; const btn = document.querySelector(`.tab-btn[onclick*="${tab}"]`);
         if(btn) cambiarPestana(tab, btn); else cambiarPestana(tab, null);
-    } else { document.getElementById('login-modal').style.display = 'flex'; document.getElementById('app-container').style.display = 'none'; }
+    } else { document.getElementById('login-modal').style.display = 'flex'; document.getElementById('app-container').style.display = 'none'; document.getElementById('lock-screen').style.display = 'none'; }
 });
 
 document.addEventListener('keydown', e => { if(e.key === "Escape") cerrarTodosModales(); });
@@ -669,15 +698,15 @@ async function buscarArchivoEnDrive() {
     try {
         const response = await gapi.client.drive.files.list({ q: "name='CORE_Vault.json' and trashed=false", spaces: 'drive', fields: 'files(id, name)' });
         const files = response.result.files;
-        if (files && files.length > 0) { driveFileId = files[0].id; document.getElementById('login-drive-status').innerText = "Bóveda encontrada en la nube. Ingresa credenciales."; document.getElementById('login-drive-status').style.color = "var(--ingreso)"; } 
-        else { document.getElementById('login-drive-status').innerText = "No se encontró bóveda. Genera una nueva."; document.getElementById('login-drive-status').style.color = "var(--deuda)"; }
+        if (files && files.length > 0) { driveFileId = files[0].id; document.getElementById('login-drive-status').innerText = "Cámara encontrada en la nube. Ingresa credenciales."; document.getElementById('login-drive-status').style.color = "var(--ingreso)"; } 
+        else { document.getElementById('login-drive-status').innerText = "No se encontró cámara acorazada. Genera una nueva."; document.getElementById('login-drive-status').style.color = "var(--deuda)"; }
     } catch (err) { mostrarAlerta("Error de Drive", "No se pudo buscar el archivo en la nube."); }
 }
 
 async function iniciarSesion() {
     const user = document.getElementById('login-user').value; const pass = document.getElementById('login-pass').value; const fileInput = document.getElementById('login-file').files[0];
     if (!user || !pass) { mostrarAlerta("Falta información", "Ingresa usuario y contraseña."); return; }
-    if (driveFileId) { try { const response = await gapi.client.drive.files.get({ fileId: driveFileId, alt: 'media' }); validarYEntrar(response.body || response.result, user, pass); } catch (err) { mostrarAlerta("Error", "No se pudo leer la bóveda de la nube."); } } 
+    if (driveFileId) { try { const response = await gapi.client.drive.files.get({ fileId: driveFileId, alt: 'media' }); validarYEntrar(response.body || response.result, user, pass); } catch (err) { mostrarAlerta("Error", "No se pudo leer la cámara de la nube."); } } 
     else if (fileInput) { const lector = new FileReader(); lector.onload = function(e) { validarYEntrar(e.target.result, user, pass); }; lector.readAsText(fileInput); } 
     else { mostrarAlerta("Falta archivo", "Conecta con Google Drive o selecciona un archivo local."); }
 }
@@ -688,6 +717,7 @@ async function validarYEntrar(jsonString, user, pass) {
         if (datos.seguridad.usuario === user && (datos.seguridad.clave === pass || datos.seguridad.clave === hashIntento)) {
             misDatos = datos; if (misDatos.seguridad.clave === pass) { misDatos.seguridad.clave = hashIntento; }
             if (!misDatos.seguridad.perfil) misDatos.seguridad.perfil = { nombres: "" }; if (!misDatos.datos.metas) misDatos.datos.metas = []; if (!misDatos.datos.deudas) misDatos.datos.deudas = []; if (!misDatos.datos.recurrentes) misDatos.datos.recurrentes = []; if(!misDatos.datos.activos) misDatos.datos.activos = [];
+            if (!misDatos.seguridad.pedir_clave_inicio) misDatos.seguridad.pedir_clave_inicio = false;
             misDatos.datos.metas.forEach(m => { if(!m.estado) m.estado = 'activa'; if(!m.fechaCreacion) m.fechaCreacion = 'Desconocida'; if(!m.id) m.id = crypto.randomUUID(); });
             if (!misDatos.seguridad.historial_sesiones) { misDatos.seguridad.historial_sesiones = []; if(misDatos.seguridad.ultima_sesion) { misDatos.seguridad.historial_sesiones.push(misDatos.seguridad.ultima_sesion); } }
             const nowIso = new Date().toISOString(); misDatos.seguridad.historial_sesiones.unshift(nowIso); misDatos.seguridad.ultima_sesion = nowIso; 
@@ -697,38 +727,36 @@ async function validarYEntrar(jsonString, user, pass) {
             document.getElementById('login-modal').style.display = 'none'; document.getElementById('app-container').style.display = 'block';
             procesarGastosRecurrentes(); limpiarFiltrosAvanzados(); popularSelectsAvanzados(); actualizarTodo(); renderizarDatosPerfil(); gestionarSaludoCamaleonico();
             const tab = localStorage.getItem('core_ultima_pestana') || 'vista-general'; const btn = document.querySelector(`.tab-btn[onclick*="${tab}"]`); if(btn) cambiarPestana(tab, btn); else cambiarPestana(tab, null);
+            actualizarToggleUI();
         } else { mostrarAlerta("Acceso denegado", "Credenciales incorrectas."); }
     } catch (err) { mostrarAlerta("Archivo dañado", "El archivo en la nube se guardó corrupto.\n\nPor favor, entra a la app normal de Google Drive, busca el archivo 'CORE_Vault.json', elimínalo, y recuerda VACÍAR LA PAPELERA. Luego, vuelve a intentar generar la cuenta aquí."); }
 }
 
 function dispararAutoSync() {
-    document.getElementById('sync-status').innerText = 'Guardando localmente...'; document.getElementById('sync-status').style.color = 'var(--deuda)';
+    document.getElementById('sync-status').innerHTML = 'Guardando localmente...'; document.getElementById('sync-status').style.color = 'var(--deuda)';
     clearTimeout(syncTimeout);
     syncTimeout = setTimeout(async () => {
         if (driveFileId && navigator.onLine) {
-            document.getElementById('sync-status').innerText = 'Subiendo a la nube...';
+            document.getElementById('sync-status').innerHTML = 'Subiendo a la nube...'; document.getElementById('sync-status').style.color = 'var(--text-muted)';
             if (!gapi.client.getToken()) { document.getElementById('sync-status').innerText = 'Requiere Token API'; return; }
             const exito = await sincronizarNube();
-            if(exito) { document.getElementById('sync-status').innerText = 'Sincronizado'; document.getElementById('sync-status').style.color = 'var(--text-muted)'; } 
+            if(exito) { document.getElementById('sync-status').innerHTML = '<span style="color:var(--ingreso)">¡Actualizado correctamente!</span>'; setTimeout(() => { document.getElementById('sync-status').innerText = 'Sincronizado'; document.getElementById('sync-status').style.color = 'var(--text-muted)'; }, 3000); } 
             else { document.getElementById('sync-status').innerText = 'Error al subir'; document.getElementById('sync-status').style.color = 'var(--danger)'; }
         } else { document.getElementById('sync-status').innerText = 'Guardado local'; document.getElementById('sync-status').style.color = 'var(--text-muted)'; }
-    }, 10000);
+    }, 5000); // Reducido el tiempo de espera a 5 seg
 }
 
 async function sincronizarNube() {
     if (!driveFileId) return false;
     const contenido = JSON.stringify(misDatos);
-    try {
-        await fetch('https://www.googleapis.com/upload/drive/v3/files/' + driveFileId + '?uploadType=media', { method: 'PATCH', headers: { 'Authorization': 'Bearer ' + gapi.client.getToken().access_token, 'Content-Type': 'application/json' }, body: contenido });
-        return true;
-    } catch (e) { return false; }
+    try { await fetch('https://www.googleapis.com/upload/drive/v3/files/' + driveFileId + '?uploadType=media', { method: 'PATCH', headers: { 'Authorization': 'Bearer ' + gapi.client.getToken().access_token, 'Content-Type': 'application/json' }, body: contenido }); return true; } catch (e) { return false; }
 }
 
 function cerrarSesionApp() {
     solicitarConfirmacion("¿Deseas cerrar sesión?\n\nSe realizará un respaldo actualizado.", async function() {
         if (driveFileId && gapi.client.getToken()) await sincronizarNube();
         localStorage.removeItem('tohka_boveda_data'); localStorage.removeItem('core_drive_id'); misDatos = null; driveFileId = null;
-        document.getElementById('app-container').style.display = 'none'; document.getElementById('login-modal').style.display = 'flex';
+        document.getElementById('app-container').style.display = 'none'; document.getElementById('login-modal').style.display = 'flex'; document.getElementById('lock-screen').style.display = 'none';
         document.getElementById('login-pass').value = ''; document.getElementById('login-file').value = ''; document.getElementById('login-file-name').innerText = 'Ningún archivo...'; document.getElementById('login-drive-status').innerText = 'Estado: Desconectado'; document.getElementById('login-drive-status').style.color = 'var(--text-muted)';
     }, "Sí, salir", "Cancelar", false);
 }
@@ -736,11 +764,11 @@ function cerrarSesionApp() {
 function solicitarHardReset() { solicitarConfirmacion("ZONA DE PELIGRO\n\n¿Estás absolutamente seguro de querer borrar todo tu historial, metas y saldos? Esta acción es irreversible.", function() { misDatos.datos = { saldo_disponible: 0, ahorros_totales: 0, deudas_totales: 0, transacciones: [], metas: [], deudas: [], recurrentes: [], activos: [] }; actualizarTodo(); mostrarToast(); }, "Borrar TODO", "Cancelar", true); }
 function abrirModalCrearBoveda() { document.getElementById('new-boveda-user').value = ''; document.getElementById('new-boveda-pass').value = ''; document.getElementById('registro-boveda-modal').style.display = 'flex'; }
 
-async function generarNuevaBoveda() {
+async function generarNuevaCamara() {
     const user = document.getElementById('new-boveda-user').value.trim(); const pass = document.getElementById('new-boveda-pass').value.trim();
     if(!user || !pass) { mostrarAlerta("Atención", "Debes ingresar un usuario y contraseña."); return; }
     const hashPass = await hashSHA256(pass);
-    const nuevaBoveda = { seguridad: { usuario: user, clave: hashPass, ultima_sesion: new Date().toISOString(), perfil: { nombres: "" } }, datos: { saldo_disponible: 0, ahorros_totales: 0, deudas_totales: 0, transacciones: [], metas: [], deudas: [], recurrentes: [], activos: [] } };
+    const nuevaBoveda = { seguridad: { usuario: user, clave: hashPass, ultima_sesion: new Date().toISOString(), pedir_clave_inicio: false, perfil: { nombres: "" } }, datos: { saldo_disponible: 0, ahorros_totales: 0, deudas_totales: 0, transacciones: [], metas: [], deudas: [], recurrentes: [], activos: [] } };
     const contenido = JSON.stringify(nuevaBoveda, null, 2);
 
     if (gapiInited && gisInited && gapi.client.getToken()) {
@@ -749,11 +777,11 @@ async function generarNuevaBoveda() {
             const metaRes = await fetch('https://www.googleapis.com/drive/v3/files', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify({ name: 'CORE_Vault.json', mimeType: 'application/json' }) });
             const metaData = await metaRes.json(); driveFileId = metaData.id;
             await fetch('https://www.googleapis.com/upload/drive/v3/files/' + driveFileId + '?uploadType=media', { method: 'PATCH', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }, body: contenido });
-            localStorage.setItem('core_drive_id', driveFileId); cerrarModal('registro-boveda-modal'); mostrarAlerta("¡Cuenta creada!", "Tu bóveda se guardó en Google Drive. Ingresa tus datos para acceder.");
+            localStorage.setItem('core_drive_id', driveFileId); cerrarModal('registro-boveda-modal'); mostrarAlerta("¡Cámara generada!", "Tu cámara acorazada se guardó en Google Drive. Ingresa tus datos para acceder.");
         } catch (e) { mostrarAlerta("Error", "No se pudo crear en Google Drive."); }
     } else {
         const blob = new Blob([contenido], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `Boveda_${user}_NUEVA.json`; a.click();
-        cerrarModal('registro-boveda-modal'); mostrarAlerta("¡Cuenta creada!", "Se descargó el archivo. Utilízalo para iniciar carga manual.");
+        cerrarModal('registro-boveda-modal'); mostrarAlerta("¡Cámara generada!", "Se descargó el archivo. Utilízalo para iniciar carga manual.");
     }
 }
 
@@ -791,7 +819,7 @@ function analisisRitmoFinanciero() {
     const txtEl = document.getElementById('ritmo-financiero-txt');
     
     if (misDatos.datos.transacciones.length === 0) {
-        txtEl.innerText = "Bóveda inicializada. Listo para tu primer registro.";
+        txtEl.innerText = "Cámara acorazada iniciada. Listo para tu primer registro.";
         document.getElementById('total-flujo').innerText = "$0";
         document.getElementById('leyenda-gastos-container').innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); font-size:12px;">No hay gastos registrados.</div>';
         if (graficoCircular) graficoCircular.destroy();
@@ -799,7 +827,7 @@ function analisisRitmoFinanciero() {
     }
 
     const hoy = new Date(); const mesActual = hoy.getMonth() + 1; const anioActual = hoy.getFullYear(); const diaHoy = hoy.getDate();
-    let ingActual = 0, egrActual = 0, egrAnterior = 0, diasBlancos = 0; let fechasConGasto = new Set();
+    let ingActual = 0, egrActual = 0, egrAnterior = 0; let fechasConGasto = new Set();
     let mesAnt = mesActual - 1; let anioAnt = anioActual; if(mesAnt === 0) { mesAnt = 12; anioAnt--; }
 
     misDatos.datos.transacciones.forEach(tx => {
@@ -810,14 +838,24 @@ function analisisRitmoFinanciero() {
         }
     });
 
-    for(let i=1; i<=diaHoy; i++) { const fechaCheck = `${anioActual}-${String(mesActual).padStart(2,'0')}-${String(i).padStart(2,'0')}`; if(!fechasConGasto.has(fechaCheck)) diasBlancos++; }
+    // Lógica Corregida: Días Blancos desde la creación o inicio del mes
+    let fechaInicioData = new Date(misDatos.datos.transacciones[0].fechaIso + "T12:00:00");
+    if(misDatos.seguridad.historial_sesiones && misDatos.seguridad.historial_sesiones.length > 0) { fechaInicioData = new Date(misDatos.seguridad.historial_sesiones[misDatos.seguridad.historial_sesiones.length - 1]); }
+    const primerDiaDelMesActual = new Date(anioActual, mesActual - 1, 1);
+    let diaInicioConteo = 1;
+    if (fechaInicioData > primerDiaDelMesActual) { diaInicioConteo = fechaInicioData.getDate(); }
+    
+    let diasDelMesTranscurridos = diaHoy - diaInicioConteo + 1; if (diasDelMesTranscurridos < 0) diasDelMesTranscurridos = 0;
+    let diasGastadosEsteMes = 0;
+    fechasConGasto.forEach(f => { const d = parseInt(f.split('-')[2]); if(d >= diaInicioConteo && d <= diaHoy) diasGastadosEsteMes++; });
+    let diasBlancos = diasDelMesTranscurridos - diasGastadosEsteMes; if(diasBlancos < 0) diasBlancos = 0;
     
     let msg = "";
-    if (egrActual === 0 && egrAnterior === 0) { 
-        msg = "Bienvenido a C.O.R.E. Registra tu primer movimiento del mes."; 
+    if (egrActual === 0 && egrAnterior === 0 && diasDelMesTranscurridos <= 1) { 
+        msg = "Bienvenido a C.O.R.E. Registra tu primer movimiento."; 
     } else {
         if (diasBlancos > 0) msg += `Llevas ${diasBlancos} Día(s) Blanco(s) 🤍. `;
-        if (egrActual === 0) { msg += "Aún no hay gastos este mes."; } else if (egrAnterior > 0) { let dif = ((egrActual - egrAnterior) / egrAnterior) * 100; if(dif > 0) msg += `Ritmo acelerado: Gastaste ${dif.toFixed(1)}% más que el mes pasado a esta fecha ⚠️`; else msg += `Buen ritmo: Gastaste ${Math.abs(dif).toFixed(1)}% menos que el mes pasado a esta fecha 🟢`; } else { msg += `Total salidas: $${egrActual.toFixed(2)}.`; }
+        if (egrActual === 0) { msg += "Aún no hay gastos este mes."; } else if (egrAnterior > 0) { let dif = ((egrActual - egrAnterior) / egrAnterior) * 100; if(dif > 0) msg += `Ritmo: Gastaste ${dif.toFixed(1)}% más que el mes pasado a esta fecha ⚠️`; else msg += `Buen ritmo: Gastaste ${Math.abs(dif).toFixed(1)}% menos que el mes pasado a esta fecha 🟢`; } else { msg += `Total salidas: $${egrActual.toFixed(2)}.`; }
     }
     txtEl.innerText = msg;
 
@@ -868,10 +906,11 @@ function renderizarDeudasUI() { const contActivas = document.getElementById('con
 function abrirModalAbonoDeuda(index) { indiceDeudaAbono = index; const deuda = misDatos.datos.deudas[index]; if(deuda.estado === 'pagada') { mostrarAlerta("Deuda Liquidada", "Esta obligación financiera ya fue pagada."); return; } document.getElementById('pd-titulo').innerText = `Abonar a ${deuda.nombre}`; document.getElementById('pd-saldo-pendiente').innerText = "$" + (deuda.monto_inicial - deuda.monto_pagado).toLocaleString('en-US', {minimumFractionDigits: 2}); document.getElementById('pd-monto').value = ''; document.getElementById('modal-pago-deuda').style.display = 'flex'; }
 function procesarPagoDeuda() { const montoPago = obtenerValorPeigo('pd-monto'); const deuda = misDatos.datos.deudas[indiceDeudaAbono]; const pendiente = deuda.monto_inicial - deuda.monto_pagado; if(isNaN(montoPago) || montoPago <= 0) { mostrarAlerta("Error", "Ingresa un monto válido mayor a cero."); return; } if(montoPago > pendiente) { mostrarAlerta("Error", `El monto máximo a pagar es de $${pendiente.toLocaleString('en-US', {minimumFractionDigits: 2})}`); return; } if(montoPago > misDatos.datos.saldo_disponible) { mostrarAlerta("Fondos insuficientes", "No tienes liquidez suficiente."); return; } misDatos.datos.saldo_disponible -= montoPago; deuda.monto_pagado += montoPago; if(deuda.monto_pagado >= deuda.monto_inicial) { deuda.estado = 'pagada'; vibrar([50, 100, 50]); } const hoyIso = new Date().toISOString().split('T')[0]; misDatos.datos.transacciones.push({ fecha: new Date().toLocaleDateString('es-ES'), fechaIso: hoyIso, timestamp: Date.now(), tipo: 'PagoDeuda', detalle: `Abono a deuda: ${deuda.nombre}`, monto: montoPago, metaId: null }); actualizarTodo(); cerrarModal('modal-pago-deuda'); mostrarToast(); if(deuda.estado === 'pagada') { cambiarSubPestanaDeudas('pagadas', document.querySelectorAll('#pestana-deudas .sub-tab-btn')[1]); } }
 
-function abrirModalRecurrente() { document.getElementById('rec-nombre').value = ''; document.getElementById('rec-monto').value = ''; document.getElementById('rec-dia').value = ''; document.getElementById('modal-recurrente').style.display = 'flex'; vibrar(15); }
-function guardarRecurrente() { const nom = document.getElementById('rec-nombre').value.trim(); const cat = document.getElementById('rec-categoria').value; const monto = obtenerValorPeigo('rec-monto'); const dia = parseInt(document.getElementById('rec-dia').value); const proxMes = document.getElementById('rec-prox-mes').checked; if(!nom || isNaN(monto) || monto <= 0 || isNaN(dia) || dia < 1 || dia > 31) { mostrarAlerta("Error", "Completa todos los campos correctamente."); return; } const hoy = new Date(); const mesAct = hoy.getFullYear() + "-" + String(hoy.getMonth()+1).padStart(2,'0'); const uMes = proxMes ? mesAct : ""; misDatos.datos.recurrentes.push({ id: crypto.randomUUID(), nombre: nom, categoria: cat, monto: monto, dia: dia, ultimo_mes_pagado: uMes }); renderizarListaRecurrentes(); guardarEnMemoriaSession(); cerrarModal('modal-recurrente'); mostrarToast(); vibrar(30); }
-function renderizarListaRecurrentes() { const lista = document.getElementById('lista-recurrentes'); lista.innerHTML = ''; if(!misDatos.datos.recurrentes || misDatos.datos.recurrentes.length === 0) { lista.innerHTML = '<div style="padding: 15px; text-align: center; color: var(--text-muted); font-size:13px;">No hay pagos programados.</div>'; return; } misDatos.datos.recurrentes.forEach((r, i) => { lista.innerHTML += `<div class="rec-item"><div><div class="rec-titulo">${escaparHTML(r.nombre)} - $${r.monto.toLocaleString('en-US', {minimumFractionDigits: 2})}</div><div class="rec-detalle">${r.categoria} | Se cobra el día ${r.dia}</div></div><button class="btn-secondary btn-danger-text" style="padding: 5px 10px;" onclick="eliminarRecurrente(${i})">Borrar</button></div>`; }); }
-function eliminarRecurrente(index) { misDatos.datos.recurrentes.splice(index, 1); renderizarListaRecurrentes(); guardarEnMemoriaSession(); }
+function abrirModalRecurrente() { document.getElementById('rec-nombre').value = ''; document.getElementById('rec-monto').value = ''; document.getElementById('rec-dia').value = ''; document.getElementById('rec-prox-mes').checked = true; indexEditandoRecurrente = null; document.getElementById('modal-recurrente').style.display = 'flex'; vibrar(15); }
+function editarRecurrente(index) { indexEditandoRecurrente = index; const r = misDatos.datos.recurrentes[index]; document.getElementById('rec-nombre').value = r.nombre; document.getElementById('rec-categoria').value = r.categoria; document.getElementById('rec-monto').value = r.monto.toFixed(2); document.getElementById('rec-dia').value = r.dia; document.getElementById('rec-prox-mes').checked = false; document.getElementById('modal-recurrente').style.display = 'flex'; vibrar(15); }
+function eliminarRecurrente(index) { const r = misDatos.datos.recurrentes[index]; solicitarConfirmacion(`¿Deseas eliminar el pago automático "${r.nombre}"?`, function() { misDatos.datos.recurrentes.splice(index, 1); renderizarListaRecurrentes(); guardarEnMemoriaSession(); mostrarToast(); }, "Eliminar", "Cancelar", true); }
+function guardarRecurrente() { const nom = document.getElementById('rec-nombre').value.trim(); const cat = document.getElementById('rec-categoria').value; const monto = obtenerValorPeigo('rec-monto'); const dia = parseInt(document.getElementById('rec-dia').value); const proxMes = document.getElementById('rec-prox-mes').checked; if(!nom || isNaN(monto) || monto <= 0 || isNaN(dia) || dia < 1 || dia > 31) { mostrarAlerta("Error", "Completa todos los campos correctamente."); return; } const hoy = new Date(); const mesAct = hoy.getFullYear() + "-" + String(hoy.getMonth()+1).padStart(2,'0'); const uMes = proxMes ? mesAct : ""; if (indexEditandoRecurrente !== null) { misDatos.datos.recurrentes[indexEditandoRecurrente] = { ...misDatos.datos.recurrentes[indexEditandoRecurrente], nombre: nom, categoria: cat, monto: monto, dia: dia }; indexEditandoRecurrente = null; } else { misDatos.datos.recurrentes.push({ id: crypto.randomUUID(), nombre: nom, categoria: cat, monto: monto, dia: dia, ultimo_mes_pagado: uMes }); } renderizarListaRecurrentes(); guardarEnMemoriaSession(); cerrarModal('modal-recurrente'); mostrarToast(); vibrar(30); }
+function renderizarListaRecurrentes() { const lista = document.getElementById('lista-recurrentes'); lista.innerHTML = ''; if(!misDatos.datos.recurrentes || misDatos.datos.recurrentes.length === 0) { lista.innerHTML = '<div style="padding: 15px; text-align: center; color: var(--text-muted); font-size:13px;">No hay pagos programados.</div>'; return; } misDatos.datos.recurrentes.forEach((r, i) => { lista.innerHTML += `<div class="rec-item"><div style="flex:1;"><div class="rec-titulo">${escaparHTML(r.nombre)} - $${r.monto.toLocaleString('en-US', {minimumFractionDigits: 2})}</div><div class="rec-detalle">${r.categoria} | Se cobra el día ${r.dia}</div></div><div style="display:flex; gap:8px;"><button class="btn-secondary" style="padding:6px; border:none;" onclick="editarRecurrente(${i})">✏️</button><button class="btn-secondary btn-danger-text" style="padding:6px; border:none;" onclick="eliminarRecurrente(${i})">🗑️</button></div></div>`; }); }
 
 function renderizarDatosPerfil() { const p = misDatos.seguridad.perfil; const nombreMostrar = p.nombres || misDatos.seguridad.usuario; document.getElementById('profile-name-display').textContent = nombreMostrar; }
 function abrirModalPerfil() { const p = misDatos.seguridad.perfil; document.getElementById('perfil-usuario-readonly').value = misDatos.seguridad.usuario; document.getElementById('perfil-nombres').value = p.nombres; document.getElementById('perfil-modal').style.display = 'flex'; }
@@ -932,20 +971,17 @@ function toggleHistorialMeta() { const info = document.getElementById('md-info-p
 
 function popularSelectsAvanzados() { const selectAhorro = document.getElementById('filtro-ahorro-select'); selectAhorro.innerHTML = '<option value="Todos">Todos los ahorros</option><option value="General">Ahorro general</option>'; if(misDatos && misDatos.datos.metas) { misDatos.datos.metas.forEach((m, index) => { if(m.estado === 'activa' || m.estado === 'archivada') selectAhorro.innerHTML += `<option value="${index}">Meta: ${escaparHTML(m.nombre)}</option>`; else if(m.estado === 'eliminada') selectAhorro.innerHTML += `<option value="${index}">Meta: ${escaparHTML(m.nombre)} (Eliminada)</option>`; }); } const selectDeuda = document.getElementById('filtro-deuda-select'); selectDeuda.innerHTML = '<option value="Todas">Todas las deudas</option>'; if(misDatos && misDatos.datos.transacciones) { const deudas = misDatos.datos.transacciones.filter(tx => tx.tipo === 'Deuda'); const etiquetas = [...new Set(deudas.map(tx => tx.detalle.trim()))]; etiquetas.forEach(et => { selectDeuda.innerHTML += `<option value="${escaparHTML(et)}">${escaparHTML(et)}</option>`; }); } }
 function verificarSubfiltrosMovimientos() { const tipo = document.getElementById('filtro-tipo').value; const fila = document.getElementById('fila-subfiltros'); const cajaAhorro = document.getElementById('caja-filtro-ahorro'); const cajaDeuda = document.getElementById('caja-filtro-deuda'); fila.classList.add('hidden'); cajaAhorro.classList.add('hidden'); cajaDeuda.classList.add('hidden'); if(tipo === 'Ahorro') { fila.classList.remove('hidden'); cajaAhorro.classList.remove('hidden'); } if(tipo === 'Deuda') { fila.classList.remove('hidden'); cajaDeuda.classList.remove('hidden'); } }
-function aplicarFiltrosAvanzados() { let filtrados = misDatos.datos.transacciones.slice(); const inicio = document.getElementById('filtro-inicio').value; const fin = document.getElementById('filtro-fin').value; const tipo = document.getElementById('filtro-tipo').value; if(inicio) filtrados = filtrados.filter(tx => tx.fechaIso >= inicio); if(fin) filtrados = filtrados.filter(tx => tx.fechaIso <= fin); if(tipo !== 'Todos') { if(tipo === 'Reverso') { filtrados = filtrados.filter(tx => tx.tipo === 'Reverso'); } else if(tipo === 'UsoAhorro') { filtrados = filtrados.filter(tx => tx.tipo === 'UsoAhorro'); } else if(tipo === 'Deuda') { filtrados = filtrados.filter(tx => tx.tipo === 'Deuda' || tx.tipo === 'PagoDeuda'); const subDeuda = document.getElementById('filtro-deuda-select').value; if(subDeuda !== 'Todas') filtrados = filtrados.filter(tx => tx.detalle.trim() === subDeuda); } else { filtrados = filtrados.filter(tx => tx.tipo === tipo); if (tipo === 'Ahorro') { const subAho = document.getElementById('filtro-ahorro-select').value; if(subAho === 'General') { filtrados = filtrados.filter(tx => tx.metaId === null || tx.metaId === undefined); } else if (subAho !== 'Todos') { filtrados = filtrados.filter(tx => tx.metaId == subAho); } } } } const tbody = document.getElementById('tabla-movimientos'); tbody.innerHTML = ''; if(filtrados.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">No se encontraron movimientos.</td></tr>'; return; } filtrados.slice().reverse().forEach(tx => { let color = tx.tipo === 'Egreso' || tx.tipo === 'PagoDeuda' ? 'var(--egreso)' : (tx.tipo === 'Deuda' ? 'var(--deuda)' : 'var(--ingreso)'); let nombreTipo = tx.tipo; if(tx.tipo === 'Ahorro' && tx.metaId != null) { nombreTipo = 'Ahorro a meta'; } else if(tx.tipo === 'Deuda') { nombreTipo = tx.esDeudaPasada ? 'Anterior' : 'Nueva'; } else if(tx.tipo === 'PagoDeuda') { nombreTipo = 'Pago deuda'; } else if(tx.tipo === 'Egreso') { nombreTipo = tx.esGastoHormiga ? 'Gasto H' : (tx.categoria || 'Egreso'); } if(tx.tipo === 'Ahorro') color = 'var(--primary)'; if(tx.tipo === 'Reverso') color = 'var(--ingreso)'; if(tx.tipo === 'UsoAhorro') { color = 'var(--text-muted)'; nombreTipo = 'Uso de ahorros'; } tbody.innerHTML += `<tr><td>${tx.fecha}</td><td style="color:${color}; font-weight:600;">${nombreTipo}</td><td class="col-detalle">${escaparHTML(tx.detalle)}</td><td class="fin-align" style="font-weight:600;">${fmtDinero(tx.monto)}</td><td class="fin-align" style="color: var(--text-muted); font-weight:600;">${fmtDinero(tx.saldo_historico || 0)}</td></tr>`; }); }
+
+let datosFiltradosActuales = [];
+function aplicarFiltrosAvanzados() { let filtrados = misDatos.datos.transacciones.slice(); const inicio = document.getElementById('filtro-inicio').value; const fin = document.getElementById('filtro-fin').value; const tipo = document.getElementById('filtro-tipo').value; if(inicio) filtrados = filtrados.filter(tx => tx.fechaIso >= inicio); if(fin) filtrados = filtrados.filter(tx => tx.fechaIso <= fin); if(tipo !== 'Todos') { if(tipo === 'Reverso') { filtrados = filtrados.filter(tx => tx.tipo === 'Reverso'); } else if(tipo === 'UsoAhorro') { filtrados = filtrados.filter(tx => tx.tipo === 'UsoAhorro'); } else if(tipo === 'Deuda') { filtrados = filtrados.filter(tx => tx.tipo === 'Deuda' || tx.tipo === 'PagoDeuda'); const subDeuda = document.getElementById('filtro-deuda-select').value; if(subDeuda !== 'Todas') filtrados = filtrados.filter(tx => tx.detalle.trim() === subDeuda); } else { filtrados = filtrados.filter(tx => tx.tipo === tipo); if (tipo === 'Ahorro') { const subAho = document.getElementById('filtro-ahorro-select').value; if(subAho === 'General') { filtrados = filtrados.filter(tx => tx.metaId === null || tx.metaId === undefined); } else if (subAho !== 'Todos') { filtrados = filtrados.filter(tx => tx.metaId == subAho); } } } } datosFiltradosActuales = filtrados; const tbody = document.getElementById('tabla-movimientos'); tbody.innerHTML = ''; if(filtrados.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">No se encontraron movimientos.</td></tr>'; return; } filtrados.slice().reverse().forEach(tx => { let color = tx.tipo === 'Egreso' || tx.tipo === 'PagoDeuda' ? 'var(--egreso)' : (tx.tipo === 'Deuda' ? 'var(--deuda)' : 'var(--ingreso)'); let nombreTipo = tx.tipo; if(tx.tipo === 'Ahorro' && tx.metaId != null) { nombreTipo = 'Ahorro a meta'; } else if(tx.tipo === 'Deuda') { nombreTipo = tx.esDeudaPasada ? 'Anterior' : 'Nueva'; } else if(tx.tipo === 'PagoDeuda') { nombreTipo = 'Pago deuda'; } else if(tx.tipo === 'Egreso') { nombreTipo = tx.esGastoHormiga ? 'Gasto H' : (tx.categoria || 'Egreso'); } if(tx.tipo === 'Ahorro') color = 'var(--primary)'; if(tx.tipo === 'Reverso') color = 'var(--ingreso)'; if(tx.tipo === 'UsoAhorro') { color = 'var(--text-muted)'; nombreTipo = 'Uso de ahorros'; } tbody.innerHTML += `<tr><td>${tx.fecha}</td><td style="color:${color}; font-weight:600;">${nombreTipo}</td><td class="col-detalle">${escaparHTML(tx.detalle)}</td><td class="fin-align" style="font-weight:600;">${fmtDinero(tx.monto)}</td><td class="fin-align" style="color: var(--text-muted); font-weight:600;">${fmtDinero(tx.saldo_historico || 0)}</td></tr>`; }); }
 function limpiarFiltrosAvanzados() { document.getElementById('filtro-inicio').value = ''; document.getElementById('filtro-fin').value = ''; document.getElementById('filtro-tipo').value = 'Todos'; document.getElementById('filtro-ahorro-select').value = 'Todos'; document.getElementById('filtro-deuda-select').value = 'Todas'; verificarSubfiltrosMovimientos(); aplicarFiltrosAvanzados(); }
 
-function exportarCSV() { const fechaHoy = new Date().toLocaleDateString('es-ES'); let csv = `"HISTORIAL FINANCIERO - Generado el ${fechaHoy}"\n`; csv += "Fecha,Tipo de movimiento,Detalle / Descripción,Monto ($), Saldo post-movimiento ($)\n"; misDatos.datos.transacciones.forEach(tx => { csv += `"${tx.fecha}","${tx.tipo}","${escaparHTML(tx.detalle).replace(/"/g, '""')}","${tx.monto.toFixed(2)}","${(tx.saldo_historico || 0).toFixed(2)}"\n`; }); const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `Historial_Financiero_${new Date().toISOString().split('T')[0]}.csv`; a.click(); }
-
-function exportarPDFEjecutivo() {
-    const isDark = document.documentElement.classList.contains('dark-mode');
-    if(isDark) document.documentElement.classList.remove('dark-mode');
-    const stealthBefore = document.body.classList.contains('stealth-active');
-    document.body.classList.remove('stealth-active');
-    
-    const element = document.querySelector('.tab-content.active');
-    const opt = { margin: 10, filename: `Reporte_CORE_${new Date().toISOString().split('T')[0]}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-    html2pdf().set(opt).from(element).save().then(() => { if(isDark) document.documentElement.classList.add('dark-mode'); if(stealthBefore) document.body.classList.add('stealth-active'); });
+function exportarExcel() { 
+    if(!datosFiltradosActuales || datosFiltradosActuales.length === 0) { mostrarAlerta("Sin datos", "No hay movimientos para exportar."); return; }
+    let tabla = `<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body><table border="1"><tr><th style="background:#0099a8; color:white;">Fecha</th><th style="background:#0099a8; color:white;">Tipo</th><th style="background:#0099a8; color:white;">Detalle</th><th style="background:#0099a8; color:white;">Monto</th><th style="background:#0099a8; color:white;">Saldo Acumulado</th></tr>`;
+    datosFiltradosActuales.slice().reverse().forEach(tx => { tabla += `<tr><td>${tx.fecha}</td><td>${tx.tipo}</td><td>${escaparHTML(tx.detalle)}</td><td>${tx.monto.toFixed(2)}</td><td>${(tx.saldo_historico||0).toFixed(2)}</td></tr>`; });
+    tabla += `</table></body></html>`;
+    const blob = new Blob([tabla], { type: 'application/vnd.ms-excel' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `Reporte_CORE_${new Date().toISOString().split('T')[0]}.xls`; a.click(); 
 }
 
 if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); }); }

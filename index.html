@@ -88,7 +88,9 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 #app-container { display: none; max-width: 1050px; margin: 30px auto; padding: 0 20px 50px 20px; }
 .app-header-premium { display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 20px 25px; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 25px; position: relative;}
 .header-brand { display: flex; align-items: center; gap: 12px; flex: 1;}
-.brand-icon-box { background: transparent; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease-in-out; flex-shrink: 0;}
+
+/* CORRECCIÓN LOGO ESTRECHO Y FIRMA S.A. */
+.brand-icon-box { background: transparent; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease-in-out; flex-shrink: 0; min-width: 45px;}
 .brand-icon-box img { width: 100%; height: 100%; object-fit: contain; }
 
 .fab-btn { display: none; position: fixed; bottom: 90px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; box-shadow: 0 6px 20px rgba(0, 153, 168, 0.4); z-index: 1500; font-size: 24px; align-items: center; justify-content: center; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); border: none; padding: 0;}
@@ -336,13 +338,17 @@ html.dark-mode .card, html.dark-mode .banner-patrimonio-clickable, html.dark-mod
                 <div class="brand-text-container" style="display:flex; flex-direction:column; justify-content:center;">
                     <h2 style="font-size: 1.2rem; margin: 0;">C.O.R.E. <span id="network-status-dot" class="status-dot"></span></h2>
                     <div class="brand-subtitle" style="font-size: 0.75rem; margin-top: 2px;">V4.0 CORPORATIVE</div>
+                    <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 2px;">&copy; TOHKA S.A. Derechos Reservados</div>
                     <div id="sync-status" style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">Sincronizado</div>
                 </div>
             </div>
             <div class="header-actions">
                 <button class="config-header-btn" onclick="toggleStealthMode()" title="Modo Incógnito">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="stealth-icon" style="width:22px;height:22px;">
-                        <path d="M2 14l2-6h16l2 6"/><path d="M4 14v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/><path d="M12 14v5"/><circle cx="7" cy="15" r="3"/><circle cx="17" cy="15" r="3"/><path d="M10 9l-2-5-4 2"/>
+                        <path d="M12 3c-1.5 0-2.8.8-3.5 2L4 9h16l-4.5-4c-.7-1.2-2-2-3.5-2z"></path>
+                        <circle cx="8" cy="14" r="3"></circle>
+                        <circle cx="16" cy="14" r="3"></circle>
+                        <path d="M11 14h2"></path>
                     </svg>
                 </button>
                 <button class="config-header-btn" onclick="cambiarPestana('configuracion', null)" title="Ajustes">
@@ -743,7 +749,7 @@ function dispararAutoSync() {
             if(exito) { document.getElementById('sync-status').innerHTML = '<span style="color:var(--ingreso)">¡Actualizado correctamente!</span>'; setTimeout(() => { document.getElementById('sync-status').innerText = 'Sincronizado'; document.getElementById('sync-status').style.color = 'var(--text-muted)'; }, 3000); } 
             else { document.getElementById('sync-status').innerText = 'Error al subir'; document.getElementById('sync-status').style.color = 'var(--danger)'; }
         } else { document.getElementById('sync-status').innerText = 'Guardado local'; document.getElementById('sync-status').style.color = 'var(--text-muted)'; }
-    }, 5000); // Reducido el tiempo de espera a 5 seg
+    }, 5000);
 }
 
 async function sincronizarNube() {
@@ -761,7 +767,18 @@ function cerrarSesionApp() {
     }, "Sí, salir", "Cancelar", false);
 }
 
-function solicitarHardReset() { solicitarConfirmacion("ZONA DE PELIGRO\n\n¿Estás absolutamente seguro de querer borrar todo tu historial, metas y saldos? Esta acción es irreversible.", function() { misDatos.datos = { saldo_disponible: 0, ahorros_totales: 0, deudas_totales: 0, transacciones: [], metas: [], deudas: [], recurrentes: [], activos: [] }; actualizarTodo(); mostrarToast(); }, "Borrar TODO", "Cancelar", true); }
+function solicitarHardReset() { 
+    solicitarConfirmacion("ZONA DE PELIGRO\n\n¿Estás absolutamente seguro de querer borrar todo tu historial, metas y saldos? Esta acción es irreversible.", function() { 
+        misDatos.datos = { saldo_disponible: 0, ahorros_totales: 0, deudas_totales: 0, transacciones: [], metas: [], deudas: [], recurrentes: [], activos: [] }; 
+        guardarEnMemoriaSession();
+        actualizarTodo(); 
+        cambiarPestana('vista-general', document.querySelector('.tab-btn.active'));
+        document.getElementById('toast-notification').innerText = "Cámara restablecida a cero.";
+        mostrarToast();
+        setTimeout(() => { document.getElementById('toast-notification').innerText = "Registro exitoso"; }, 2000);
+    }, "Borrar TODO", "Cancelar", true); 
+}
+
 function abrirModalCrearBoveda() { document.getElementById('new-boveda-user').value = ''; document.getElementById('new-boveda-pass').value = ''; document.getElementById('registro-boveda-modal').style.display = 'flex'; }
 
 async function generarNuevaCamara() {
@@ -838,7 +855,6 @@ function analisisRitmoFinanciero() {
         }
     });
 
-    // Lógica Corregida: Días Blancos desde la creación o inicio del mes
     let fechaInicioData = new Date(misDatos.datos.transacciones[0].fechaIso + "T12:00:00");
     if(misDatos.seguridad.historial_sesiones && misDatos.seguridad.historial_sesiones.length > 0) { fechaInicioData = new Date(misDatos.seguridad.historial_sesiones[misDatos.seguridad.historial_sesiones.length - 1]); }
     const primerDiaDelMesActual = new Date(anioActual, mesActual - 1, 1);

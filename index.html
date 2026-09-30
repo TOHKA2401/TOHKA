@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tohka Hub</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#007bff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1 id="app-title">Tohka Schedule</h1>
+        <div id="sync-status" class="sync-status">🟢 Offline (Local)</div>
+    </header>
+
+    <main>
+        <section id="tab-schedule" class="tab-content active">
+            <div class="dashboard-card">
+                <h3>Mes Actual: <span id="month-name"></span></h3>
+                <div class="stats-grid">
+                    <div>
+                        <small>Meta (L-V, 8h/d)</small>
+                        <strong id="month-target">0h</strong>
+                    </div>
+                    <div>
+                        <small>Tus Horas</small>
+                        <strong id="month-actual">0h</strong>
+                    </div>
+                    <div>
+                        <small>Gratificación</small>
+                        <strong id="month-bonus" class="text-primary">$0.00</strong>
+                    </div>
+                </div>
+                <progress id="month-progress" value="0" max="100"></progress>
+            </div>
+
+            <div class="controls">
+                <button id="toggle-view" class="btn-small">Ver: Horas</button>
+                <div class="week-nav">
+                    <button id="prev-week" class="btn-small">&lt;</button>
+                    <span id="current-week-label">Semana</span>
+                    <button id="next-week" class="btn-small">&gt;</button>
+                </div>
+            </div>
+
+            <div id="week-grid" class="week-grid"></div>
+        </section>
+
+        <section id="tab-vault" class="tab-content" hidden>
+            <div class="dashboard-card text-center">
+                <h3>Balance Total</h3>
+                <h2 id="vault-balance" class="text-primary">$0.00</h2>
+            </div>
+            
+            <form id="vault-form" class="vault-form">
+                <div class="form-row">
+                    <select id="v-type" required>
+                        <option value="ingreso">Ingreso (+)</option>
+                        <option value="egreso">Egreso (-)</option>
+                    </select>
+                    <input type="number" id="v-amount" step="0.01" placeholder="Monto $" required>
+                </div>
+                <input type="text" id="v-concept" placeholder="Concepto (ej. Sueldo, Almuerzo)" required>
+                <button type="submit" class="btn-primary w-100">Registrar</button>
+            </form>
+
+            <div id="vault-list" class="vault-list"></div>
+        </section>
+    </main>
+
+    <nav class="bottom-nav">
+        <button class="nav-btn active" data-target="tab-schedule">⏱️ Horarios</button>
+        <button class="nav-btn" data-target="tab-vault">💰 Bóveda</button>
+    </nav>
+
+    <div id="entry-modal" class="modal" hidden>
+        <div class="modal-content">
+            <h2 id="modal-date-title">Registro</h2>
+            <form id="entry-form">
+                <input type="hidden" id="entry-date">
+                <select id="entry-type" class="w-100 mb-2">
+                    <option value="shift">Jornada Laboral</option>
+                    <option value="note">Nota</option>
+                </select>
+                <div id="shift-fields">
+                    <div class="form-row mb-2">
+                        <input type="time" id="time-start">
+                        <input type="time" id="time-end">
+                    </div>
+                    <label class="checkbox-label mb-2">
+                        <input type="checkbox" id="has-break"> Descontar 1h break
+                    </label>
+                </div>
+                <div id="note-fields" hidden>
+                    <textarea id="note-text" rows="3" class="w-100 mb-2" placeholder="Nota..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="btn-cancel" class="btn-secondary">Cancelar</button>
+                    <button type="button" id="btn-delete" class="btn-danger" hidden>Borrar</button>
+                    <button type="submit" class="btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

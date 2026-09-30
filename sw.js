@@ -1,16 +1,31 @@
-const CACHE_NAME = 'tohka-cache-v1';
-const ASSETS = ['/', '/index.html', '/style.css', '/app.js', '/manifest.json'];
+const CACHE_NAME = 'core-v4.5';
+const urlsToCache = [
+  './',
+  './index.html',
+  './style.css',
+  './app.js',
+  './manifest.json',
+  './icon-192.png'
+];
 
-self.addEventListener('install', e => {
-    e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS)));
+self.addEventListener('install', event => {
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => { return cache.addAll(urlsToCache); }));
+  self.skipWaiting();
 });
 
-self.addEventListener('activate', e => {
-    e.waitUntil(caches.keys().then(keys => Promise.all(
-        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
-    )));
+self.addEventListener('activate', event => {
+  event.waitUntil(caches.keys().then(cacheNames => {
+    return Promise.all(cacheNames.map(cacheName => {
+      if (cacheName !== CACHE_NAME) return caches.delete(cacheName);
+    }));
+  }));
+  self.clients.claim();
 });
 
-self.addEventListener('fetch', e => {
-    e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
+self.addEventListener('fetch', event => {
+  if (!event.request.url.startsWith(self.location.origin)) { return; }
+  event.respondWith(caches.match(event.request).then(response => {
+    if (response) return response;
+    return fetch(event.request);
+  }));
 });

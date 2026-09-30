@@ -10,7 +10,6 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="stylesheet" href="style.css">
 
-    <!-- LIBRERÍAS EXTERNAS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
     <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
@@ -22,7 +21,6 @@
 </head>
 <body>
 
-    <!-- Pantalla de Bloqueo por Privacidad -->
     <div id="lock-screen" class="modal-overlay" style="z-index: 9999; background: var(--bg-body);">
         <div class="login-card" style="box-shadow: none; width: 100%; max-width: 340px;">
             <div class="profile-avatar" style="width: 80px; height: 80px; margin: 0 auto 20px auto;"><img src="icon-192.png" alt="Perfil"></div>
@@ -59,7 +57,7 @@
         </div>
     </div>
 
-    <div id="login-modal">
+    <div id="login-modal" class="modal-overlay">
         <div class="login-card">
             <h2 style="color: var(--primary); margin-bottom: 10px;">Bienvenido</h2>
             <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 25px;">Accede a tu cámara acorazada personal</p>
@@ -210,7 +208,7 @@
                 <p style="color: var(--text-muted); font-size: 13px; line-height: 1.4; margin: 0;">Gestiona tus jornadas y proyecta tus horas laborables.</p>
             </div>
 
-            <div class="card" style="margin-bottom: 25px; padding: 25px;">
+            <div class="card" style="margin-bottom: 20px; padding: 25px;">
                 <h3 style="margin-bottom: 15px; color: var(--text-muted);">Mes Actual: <span id="h-month-name" style="color: var(--primary);"></span></h3>
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center;">
                     <div>
@@ -231,15 +229,27 @@
                 </div>
             </div>
 
-            <div class="week-nav-controls">
-                <button onclick="toggleVistaHorarios()" id="h-toggle-view" class="btn-secondary" style="margin-right: auto;">Vista: Horas</button>
-                <button onclick="cambiarSemanaHorarios(-1)" class="btn-secondary">&lt;</button>
-                <span id="h-week-label" class="week-label">Semana</span>
-                <button onclick="cambiarSemanaHorarios(1)" class="btn-secondary">&gt;</button>
-            </div>
-
-            <div id="h-week-grid" style="display: flex; flex-direction: column;">
-                <!-- Días inyectados mediante JS -->
+            <div style="background: var(--bg-card); border-radius: var(--radius); padding: 15px; box-shadow: var(--shadow); margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <button onclick="toggleVistaHorarios()" id="h-toggle-view" class="btn-secondary" style="font-size: 12px; padding: 6px 12px;">Horas trabajadas</button>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button onclick="cambiarMesHorarios(-1)" class="btn-secondary" style="padding: 6px 10px;">&lt;</button>
+                        <span id="h-month-label-cal" style="font-weight: bold; font-size: 14px; text-transform: uppercase;"></span>
+                        <button onclick="cambiarMesHorarios(1)" class="btn-secondary" style="padding: 6px 10px;">&gt;</button>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;">
+                    <div class="calendar-day-header">LUN</div>
+                    <div class="calendar-day-header">MAR</div>
+                    <div class="calendar-day-header">MIÉ</div>
+                    <div class="calendar-day-header">JUE</div>
+                    <div class="calendar-day-header">VIE</div>
+                    <div class="calendar-day-header" style="color: var(--primary);">SÁB</div>
+                    <div class="calendar-day-header" style="color: var(--egreso);">DOM</div>
+                </div>
+                <div id="h-calendar-grid" class="calendar-grid">
+                </div>
             </div>
         </div>
 
@@ -370,41 +380,106 @@
 
     <div id="registro-boveda-modal" class="modal-overlay"><div class="modal-card modal-sm"><h3 style="color: var(--primary);">Crear nueva cuenta</h3><p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">Se guardará en la nube si estás conectado.</p><label style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; display:block;">Crea tu usuario:</label><input type="text" id="new-boveda-user" placeholder="Ej. juanperez"><label style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; display:block;">Crea tu contraseña:</label><input type="password" id="new-boveda-pass" placeholder="••••••••"><div class="modal-footer"><button onclick="cerrarModal('registro-boveda-modal')" class="btn-secondary">Cancelar</button><button onclick="generarNuevaCamara()">Generar</button></div></div></div>
     
+    <div id="h-summary-modal" class="modal-overlay">
+        <div class="modal-card modal-md" style="padding: 0; overflow: hidden;">
+            <div style="background: var(--bg-card); padding: 20px; text-align: center; border-bottom: 1px solid var(--border);">
+                <div style="color: var(--text-muted); font-size: 12px; text-transform: uppercase;" id="h-sum-month">SEPTIEMBRE 2026</div>
+                <div style="font-size: 28px; font-weight: bold; margin-top: 5px;"><span id="h-sum-day-num">30</span> <span style="font-size: 16px; font-weight: normal;" id="h-sum-day-name">Mié</span></div>
+            </div>
+            <div style="background: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 16px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    Intervalo de Trabajo
+                </div>
+                <button onclick="abrirModalEdicionHorario()" style="background: transparent; padding: 0; box-shadow: none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                </button>
+            </div>
+            <div style="padding: 20px;">
+                <div style="background: var(--overlay-subtle); border-radius: 12px; padding: 15px; border: 1px solid var(--border); margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="font-weight: 600;">Horas normales</span>
+                        <span style="color: var(--primary); font-weight: bold;" id="h-sum-hours-text">0 Horas</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 10px; padding-left: 10px; border-left: 2px solid var(--primary);">
+                        <span id="h-sum-time-range">00:00 - 00:00</span>
+                    </div>
+                    <div id="h-sum-pausa-block" class="hidden">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="font-weight: 600; color: var(--egreso);">Pausa</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 10px; padding-left: 10px; border-left: 2px solid var(--egreso);">
+                            <span id="h-sum-pausa-range">11:00 - 12:00</span>
+                        </div>
+                    </div>
+                    <div style="border-top: 1px dashed var(--border); margin: 10px 0;"></div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span style="font-weight: 600;">Duración total</span>
+                        <span style="font-weight: bold;" id="h-sum-total-final">0 Horas</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="font-weight: 600;">Ganancia proy.</span>
+                        <span style="font-weight: bold; color: var(--ingreso);" id="h-sum-ganancia">0 $</span>
+                    </div>
+                </div>
+                <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: bold;" id="h-sum-nota-display">NOTA: NINGUNA</div>
+            </div>
+            <div class="modal-footer" style="padding: 15px; margin: 0; background: var(--bg-card);">
+                <button type="button" onclick="cerrarModal('h-summary-modal')" class="btn-secondary" style="width: 100%;">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     <div id="h-entry-modal" class="modal-overlay">
-        <div class="modal-card modal-sm">
-            <h3 id="h-modal-title" style="color: var(--primary);">Registro Horario</h3>
-            <form id="h-entry-form">
+        <div class="modal-card modal-sm" style="padding: 0; overflow: hidden;">
+            <div style="background: var(--bg-card); padding: 20px; text-align: center; border-bottom: 1px solid var(--border);">
+                <div style="font-size: 18px; font-weight: bold;" id="h-edit-title">Editar Horario</div>
+                <div style="font-size: 12px; color: var(--text-muted);" id="h-edit-subtitle">28/9/2026</div>
+            </div>
+            <form id="h-entry-form" style="padding: 20px;">
                 <input type="hidden" id="h-entry-date">
-                <label style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; display:block;">Tipo de registro:</label>
-                <select id="h-entry-type" class="w-100 mb-2">
-                    <option value="shift">Jornada Laboral</option>
-                    <option value="note">Nota</option>
-                </select>
-                <div id="h-shift-fields">
-                    <div class="grid-2-cols" style="align-items: end; gap: 10px;">
-                        <div>
-                            <label style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; display:block;">Hora Inicio:</label>
-                            <input type="time" id="h-time-start">
-                        </div>
-                        <div>
-                            <label style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; display:block;">Hora Fin:</label>
-                            <input type="time" id="h-time-end">
-                        </div>
+                
+                <div style="background: var(--overlay-subtle); border-radius: 12px; padding: 15px; border: 1px solid var(--border); margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <span style="font-weight: 600;">Horas normales</span>
                     </div>
-                    <div class="config-item" style="padding: 10px 15px; margin-bottom: 10px; margin-top: 5px; background: var(--overlay-subtle); box-shadow: none; border: 1px solid var(--border);">
-                        <div><h4 style="margin-bottom: 2px; font-size: 13px;">Descontar Break</h4><span style="color: var(--text-muted); font-size: 11px;">Resta 1 hora al total.</span></div>
-                        <label class="switch" style="transform: scale(0.8);"><input type="checkbox" id="h-has-break"><span class="slider"></span></label>
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                        <span style="font-size: 13px; color: var(--text-muted); width: 20px;">De</span>
+                        <input type="time" class="time-btn" id="h-time-start">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                        <span style="font-size: 13px; color: var(--text-muted); width: 20px;">A</span>
+                        <input type="time" class="time-btn" id="h-time-end">
                     </div>
                 </div>
-                <div id="h-note-fields" class="hidden">
-                    <label style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; display:block;">Nota:</label>
-                    <textarea id="h-note-text" rows="3" placeholder="Ingresa una nota..."></textarea>
+
+                <div style="background: var(--overlay-subtle); border-radius: 12px; padding: 15px; border: 1px solid var(--border); margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <span style="font-weight: 600;">Pausa</span>
+                        <label class="switch" style="transform: scale(0.8); margin: 0;"><input type="checkbox" id="h-has-break"><span class="slider"></span></label>
+                    </div>
+                    <div id="h-pausa-fields" class="hidden">
+                        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                            <span style="font-size: 13px; color: var(--text-muted); width: 20px;">De</span>
+                            <input type="time" class="time-btn time-btn-danger" id="h-pausa-start">
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <span style="font-size: 13px; color: var(--text-muted); width: 20px;">A</span>
+                            <input type="time" class="time-btn time-btn-danger" id="h-pausa-end">
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-footer" style="margin-top: 15px;">
-                    <button type="button" onclick="cerrarModal('h-entry-modal')" class="btn-secondary">Cancelar</button>
-                    <button type="button" id="h-btn-delete" class="hidden" style="background: var(--danger); color: white;" onclick="eliminarHorarioActual()">Borrar</button>
-                    <button type="submit">Guardar</button>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; display:block;">Nota</label>
+                    <textarea id="h-note-text" rows="2" placeholder="Agrega una nota aquí..."></textarea>
                 </div>
+                
+                <div class="modal-footer" style="margin-top: 0; padding-top: 15px; border-top: none;">
+                    <button type="button" onclick="cerrarModal('h-entry-modal')" class="btn-secondary" style="flex: 1;">Cancelar</button>
+                    <button type="submit" style="flex: 1;">Aceptar</button>
+                </div>
+                <div style="text-align: center; font-size: 10px; color: var(--text-muted); margin-top: 10px;">Para borrar, guarda con las horas vacías</div>
             </form>
         </div>
     </div>

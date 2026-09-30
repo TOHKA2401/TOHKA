@@ -1,18 +1,40 @@
-const GAS_URL = 'TU_URL_DE_WEB_APP_AQUI'; 
+const CLIENT_ID = '872198938997-ojphno5r5pivksqtg5g6d4blqdat389g.apps.googleusercontent.com';
 
 let db = JSON.parse(localStorage.getItem('tohka_db')) || { schedule: {}, vault: [] };
 let currentDate = new Date();
 let showHours = false;
+let tokenClient;
+let accessToken = null;
+let driveFileId = localStorage.getItem('tohka_file_id') || null;
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
 }
 
+window.onload = () => {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: CLIENT_ID,
+        scope: 'https://www.googleapis.com/auth/drive.file',
+        callback: async (response) => {
+            if (response.error) return;
+            accessToken = response.access_token;
+            document.getElementById('btn-login').hidden = true;
+            document.getElementById('sync-status').hidden = false;
+            document.getElementById('sync-status').textContent = '🔄 Descargando...';
+            await fetchFromDrive();
+            document.getElementById('sync-status').textContent = '🟢 Online';
+        }
+    });
+};
+
+document.getElementById('btn-login').onclick = () => {
+    tokenClient.requestAccessToken({ prompt: 'consent' });
+};
+
 document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(t => t.hidden = true);
-        
         const target = e.currentTarget;
         target.classList.add('active');
         document.getElementById(target.dataset.target).hidden = false;
@@ -20,20 +42,67 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
     });
 });
 
-const syncStatus = document.getElementById('sync-status');
+async function getDriveFileId() {
+    if (driveFileId) return driveFileId;
+    const res = await fetch("https://www.googleapis.com/drive/v3/files?q=name='tohka_hub_data.json' and trashed=false", {
+        headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    const data = await res.json();
+    if (data.files && data.files.length > 0) {
+        driveFileId = data.files[0].id;
+        localStorage.setItem('tohka_file_id', driveFileId);
+        return driveFileId;
+    }
+    return null;
+}
+
+async function fetchFromDrive() {
+    if (!accessToken) return;
+    const fileId = await getDriveFileId();
+    if (!fileId) return;
+    try {
+        const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+            headers: { Authorization: `Bearer ${accessToken}` }
+        });
+        const data = await res.json();
+        if (data && (data.schedule || data.vault)) {
+            db = data;
+            localStorage.setItem('tohka_db', JSON.stringify(db));
+            renderAll();
+        }
+    } catch (e) {}
+}
 
 async function syncWithDrive() {
-    if (GAS_URL === 'TU_URL_DE_WEB_APP_AQUI') return;
+    if (!accessToken) return;
     try {
-        syncStatus.textContent = '🔄 Sincronizando...';
-        await fetch(GAS_URL, {
-            method: 'POST',
-            body: JSON.stringify(db),
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+        document.getElementById('sync-status').textContent = '🔄 Subiendo...';
+        const fileId = await getDriveFileId();
+        const metadata = new Blob([JSON.stringify({ name: 'tohka_hub_data.json', mimeType: 'application/json' })], { type: 'application/json' });
+        const fileContent = new Blob([JSON.stringify(db)], { type: 'application/json' });
+        const form = new FormData();
+        form.append('metadata', metadata);
+        form.append('file', fileContent);
+        
+        const url = fileId 
+            ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart` 
+            : 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
+        const method = fileId ? 'PATCH' : 'POST';
+        
+        const res = await fetch(url, {
+            method: method,
+            headers: { Authorization: `Bearer ${accessToken}` },
+            body: form
         });
-        syncStatus.textContent = '🟢 Online (Sincronizado)';
+        
+        if (!fileId) {
+            const data = await res.json();
+            driveFileId = data.id;
+            localStorage.setItem('tohka_file_id', driveFileId);
+        }
+        document.getElementById('sync-status').textContent = '🟢 Guardado en Drive';
     } catch (e) {
-        syncStatus.textContent = '🟡 Offline (Guardado local)';
+        document.getElementById('sync-status').textContent = '🟡 Guardado local';
     }
 }
 
@@ -60,8 +129,8 @@ function updateDashboard() {
     
     const targetHours = getMonthTarget(year, month);
     let actualHours = 0;
-
     const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
+    
     for (const [date, record] of Object.entries(db.schedule)) {
         if (date.startsWith(monthPrefix) && record.type === 'shift') {
             actualHours += parseFloat(record.totalHours);
@@ -86,7 +155,6 @@ function renderWeek() {
     const day = date.getDay();
     const diff = date.getDate() - day + (day === 0 ? -6 : 1);
     const monday = new Date(date.setDate(diff));
-
     const sunday = new Date(monday);
     sunday.setDate(monday.getDate() + 6);
     document.getElementById('current-week-label').textContent = `${monday.getDate()}/${monday.getMonth()+1} - ${sunday.getDate()}/${sunday.getMonth()+1}`;
@@ -97,7 +165,6 @@ function renderWeek() {
         d.setDate(monday.getDate() + i);
         const dateKey = d.toISOString().split('T')[0];
         const record = db.schedule[dateKey];
-
         const div = document.createElement('div');
         div.className = 'card-item';
         div.onclick = () => openModal(dateKey, days[i]);
@@ -107,7 +174,6 @@ function renderWeek() {
             if (record.type === 'note') contentHtml = '📝 Nota';
             else contentHtml = showHours ? `⏱ ${record.totalHours}h` : `${record.start} - ${record.end} ${record.hasBreak ? '☕' : ''}`;
         }
-
         div.innerHTML = `<div><strong>${days[i]}</strong> <small>${d.getDate()}</small></div><div>${contentHtml}</div>`;
         grid.appendChild(div);
     }
@@ -197,18 +263,14 @@ function renderVault() {
     const list = document.getElementById('vault-list');
     list.innerHTML = '';
     let total = 0;
-    
     [...db.vault].reverse().forEach(tx => {
         const isIngreso = tx.type === 'ingreso';
         total += isIngreso ? tx.amount : -tx.amount;
-        
         const div = document.createElement('div');
         div.className = 'card-item vault-item';
         div.innerHTML = `
             <div><strong>${tx.concept}</strong> <br><small>${tx.date}</small></div>
-            <strong class="${isIngreso ? 'text-success' : 'text-danger'}">
-                ${isIngreso ? '+' : '-'}$${tx.amount.toFixed(2)}
-            </strong>
+            <strong class="${isIngreso ? 'text-success' : 'text-danger'}">${isIngreso ? '+' : '-'}$${tx.amount.toFixed(2)}</strong>
         `;
         div.ondblclick = () => {
             if(confirm('¿Borrar este registro?')) {
@@ -218,7 +280,6 @@ function renderVault() {
         };
         list.appendChild(div);
     });
-    
     document.getElementById('vault-balance').textContent = `$${total.toFixed(2)}`;
 }
 
@@ -229,14 +290,3 @@ function renderAll() {
 }
 
 renderAll();
-
-if(GAS_URL !== 'TU_URL_DE_WEB_APP_AQUI') {
-    fetch(GAS_URL)
-        .then(res => res.json())
-        .then(remoteData => {
-            if(remoteData && (remoteData.schedule || remoteData.vault)) {
-                db = remoteData;
-                saveData();
-            }
-        }).catch(err => console.log('Sin red para carga inicial'));
-}

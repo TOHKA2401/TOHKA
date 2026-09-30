@@ -8,11 +8,15 @@
     <meta name="theme-color" content="#007bff" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
     <link rel="stylesheet" href="style.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
     <header>
-        <h1 id="app-title">Tohka Schedule</h1>
-        <div id="sync-status" class="sync-status">🟢 Offline (Local)</div>
+        <div class="header-top">
+            <h1 id="app-title">Tohka Schedule</h1>
+            <button id="btn-login" class="btn-small btn-google">Conectar Drive</button>
+            <div id="sync-status" class="sync-status" hidden>🟢 Offline</div>
+        </div>
     </header>
 
     <main>
@@ -21,7 +25,7 @@
                 <h3>Mes Actual: <span id="month-name"></span></h3>
                 <div class="stats-grid">
                     <div>
-                        <small>Meta (L-V, 8h/d)</small>
+                        <small>Meta (L-V, 8h)</small>
                         <strong id="month-target">0h</strong>
                     </div>
                     <div>
@@ -62,7 +66,7 @@
                     </select>
                     <input type="number" id="v-amount" step="0.01" placeholder="Monto $" required>
                 </div>
-                <input type="text" id="v-concept" placeholder="Concepto (ej. Sueldo, Almuerzo)" required>
+                <input type="text" id="v-concept" placeholder="Concepto" required>
                 <button type="submit" class="btn-primary w-100">Registrar</button>
             </form>
 
@@ -94,7 +98,7 @@
                     </label>
                 </div>
                 <div id="note-fields" hidden>
-                    <textarea id="note-text" rows="3" class="w-100 mb-2" placeholder="Nota..."></textarea>
+                    <textarea id="note-text" rows="3" class="w-100 mb-2"></textarea>
                 </div>
                 <div class="modal-actions">
                     <button type="button" id="btn-cancel" class="btn-secondary">Cancelar</button>

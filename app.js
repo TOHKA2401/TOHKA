@@ -8,7 +8,7 @@ let accionConfirmadaPendiente = null; let accionCancelarPendiente = null; let in
 let tokenClient; let gapiInited = false; let gisInited = false; let driveFileId = null;
 let syncTimeout = null; let ultimoRegistroGuardado = null; 
 
-let hCurrentDate = new Date(); let hShowHours = false;
+let hCurrentDate = new Date(); let hShowHours = true; let hSelectedDateKey = null;
 
 function gapiLoaded() { gapi.load('client', initializeGapiClient); }
 async function initializeGapiClient() { await gapi.client.init({ apiKey: API_KEY, discoveryDocs: [DISCOVERY_DOC] }); gapiInited = true; }
@@ -207,7 +207,7 @@ function cambiarPestana(id, btn) {
     
     if (id === 'horarios') {
         document.getElementById('btn-global-nuevo').style.display = 'none';
-        renderizarSemanaHorarios();
+        renderizarCalendarioHorarios();
     } else {
         document.getElementById('btn-global-nuevo').style.display = 'inline-flex';
     }
@@ -315,7 +315,7 @@ function actualizarTodo() {
     let gastoEl = document.getElementById('dash-pct-egresos'); if(pctGasto === '∞') { gastoEl.innerText = "Gastos sin ingresos registrados"; gastoEl.style.color = "var(--egreso)"; } else { gastoEl.innerText = `Ratio de gasto: ${pctGasto.toFixed(1)}% de tus ingresos`; if(pctGasto > 80) gastoEl.style.color = "var(--egreso)"; else if(pctGasto > 50) gastoEl.style.color = "var(--deuda)"; else gastoEl.style.color = "var(--ingreso)"; }
     
     aplicarFiltrosAvanzados(); renderizarMetasUI(); renderizarDeudasUI(); analisisRitmoFinanciero(); renderizarListaRecurrentes();
-    actualizarDashboardHorarios(); renderizarSemanaHorarios();
+    actualizarDashboardHorarios(); renderizarCalendarioHorarios();
     if(tarjetaActiva) { const tipoFiltro = tarjetaActiva.onclick.toString().match(/'(.*?)'/)[1]; toggleDetalleInline(tipoFiltro, tarjetaActiva); } guardarEnMemoriaSession();
 }
 function animarCifra(id, val) { document.getElementById(id).innerText = "$" + val.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
@@ -404,15 +404,6 @@ function exportarExcel() {
     const blob = new Blob([tabla], { type: 'application/vnd.ms-excel' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `Reporte_CORE_${new Date().toISOString().split('T')[0]}.xls`; a.click(); 
 }
 
-// ==========================================
-// MÓDULO HORARIOS FUSIONADO A C.O.R.E.
-// ==========================================
-function getHorariosMonday(d) {
-    const date = new Date(d); const day = date.getDay();
-    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-    return new Date(date.setDate(diff));
-}
-
 function getHorariosMonthTarget(year, month) {
     let daysInMonth = new Date(year, month + 1, 0).getDate();
     let workingDays = 0;
@@ -433,7 +424,7 @@ function actualizarDashboardHorarios() {
     const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
     
     for (const [date, record] of Object.entries(misDatos.datos.horarios)) {
-        if (date.startsWith(monthPrefix) && record.type === 'shift') {
+        if (date.startsWith(monthPrefix) && record.totalHours) {
             actualHours += parseFloat(record.totalHours);
         }
     }
@@ -449,122 +440,173 @@ function actualizarDashboardHorarios() {
     document.getElementById('h-month-progress').style.width = `${progressPercent * 100}%`;
 }
 
-function renderizarSemanaHorarios() {
+function renderizarCalendarioHorarios() {
     if(!misDatos || !misDatos.datos.horarios) return;
-    const grid = document.getElementById('h-week-grid');
+    const grid = document.getElementById('h-calendar-grid');
     grid.innerHTML = '';
-    const monday = getHorariosMonday(hCurrentDate);
-    const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
-    document.getElementById('h-week-label').textContent = `${monday.getDate()}/${monday.getMonth()+1} - ${sunday.getDate()}/${sunday.getMonth()+1}`;
-
-    const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-    for (let i = 0; i < 7; i++) {
-        const d = new Date(monday); d.setDate(monday.getDate() + i);
-        const dateKey = d.toISOString().split('T')[0];
+    
+    const year = hCurrentDate.getFullYear();
+    const month = hCurrentDate.getMonth();
+    
+    let firstDay = new Date(year, month, 1).getDay();
+    firstDay = firstDay === 0 ? 6 : firstDay - 1; 
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    document.getElementById('h-month-label-cal').textContent = hCurrentDate.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+    
+    for (let i = 0; i < firstDay; i++) {
+        const div = document.createElement('div');
+        div.className = 'calendar-day empty';
+        grid.appendChild(div);
+    }
+    
+    for (let d = 1; d <= daysInMonth; d++) {
+        const currentDay = new Date(year, month, d);
+        const dateKey = currentDay.toISOString().split('T')[0];
         const record = misDatos.datos.horarios[dateKey];
         
         const div = document.createElement('div');
-        div.className = 'day-card';
-        div.onclick = () => abrirModalHorario(dateKey, days[i], d.toLocaleDateString('es-ES'));
+        let classes = 'calendar-day';
+        let contentHtml = '';
         
-        let contentHtml = '<span style="opacity:0.4; font-size: 0.9em; font-weight: normal;">Sin registro</span>';
         if (record) {
-            if (record.type === 'note') contentHtml = '📝 ' + escaparHTML(record.noteText).substring(0,20) + '...';
-            else contentHtml = hShowHours ? `⏱ ${record.totalHours}h` : `${record.start} - ${record.end} ${record.hasBreak ? '☕' : ''}`;
+            if (record.noteText && !record.totalHours) {
+                contentHtml = '📝 Nota';
+                classes += ' has-note';
+            } else if (record.totalHours) {
+                contentHtml = hShowHours ? `${record.totalHours} Horas` : `${record.start} - ${record.end}`;
+                classes += ' has-record';
+            }
         }
         
+        div.className = classes;
+        div.onclick = () => clickCalendarDay(dateKey, currentDay);
         div.innerHTML = `
-            <div class="day-info">
-                <span class="day-name">${days[i]}</span>
-                <span class="day-date">${d.toLocaleDateString('es-ES')}</span>
-            </div>
-            <div class="day-content">${contentHtml}</div>
+            <div class="calendar-date-num">${d}</div>
+            <div class="calendar-day-content">${contentHtml}</div>
         `;
         grid.appendChild(div);
     }
 }
 
-function cambiarSemanaHorarios(offset) {
-    hCurrentDate.setDate(hCurrentDate.getDate() + (offset * 7));
+function cambiarMesHorarios(offset) {
+    hCurrentDate.setMonth(hCurrentDate.getMonth() + offset);
     actualizarDashboardHorarios();
-    renderizarSemanaHorarios();
+    renderizarCalendarioHorarios();
 }
 
 function toggleVistaHorarios() {
     hShowHours = !hShowHours;
-    document.getElementById('h-toggle-view').textContent = hShowHours ? 'Vista: Horario' : 'Vista: Horas';
-    renderizarSemanaHorarios();
+    document.getElementById('h-toggle-view').textContent = hShowHours ? 'Horas trabajadas' : 'Horario';
+    renderizarCalendarioHorarios();
 }
 
-function abrirModalHorario(dateKey, dayName, shortDate) {
-    document.getElementById('h-modal-title').textContent = `${dayName} (${shortDate})`;
-    document.getElementById('h-entry-date').value = dateKey;
+function clickCalendarDay(dateKey, dateObj) {
+    hSelectedDateKey = dateKey;
     const rec = misDatos.datos.horarios[dateKey];
     
-    if (rec) {
-        document.getElementById('h-entry-type').value = rec.type;
-        if (rec.type === 'shift') {
-            document.getElementById('h-time-start').value = rec.start;
-            document.getElementById('h-time-end').value = rec.end;
-            document.getElementById('h-has-break').checked = rec.hasBreak;
+    if (rec && (rec.totalHours || rec.noteText)) {
+        document.getElementById('h-sum-month').textContent = dateObj.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+        document.getElementById('h-sum-day-num').textContent = dateObj.getDate();
+        document.getElementById('h-sum-day-name').textContent = dateObj.toLocaleString('es-ES', { weekday: 'short' });
+        
+        if (rec.totalHours) {
+            document.getElementById('h-sum-hours-text').textContent = `${rec.totalHours} Horas`;
+            document.getElementById('h-sum-time-range').textContent = `${rec.start} - ${rec.end}`;
+            document.getElementById('h-sum-total-final').textContent = `${rec.totalHours} Horas`;
+            
+            const targetHours = getHorariosMonthTarget(dateObj.getFullYear(), dateObj.getMonth());
+            const hourlyRate = 123.48 / targetHours;
+            const ganancia = (parseFloat(rec.totalHours) * hourlyRate).toFixed(2);
+            document.getElementById('h-sum-ganancia').textContent = `${ganancia} $`;
+            
+            if (rec.hasPausa) {
+                document.getElementById('h-sum-pausa-block').classList.remove('hidden');
+                document.getElementById('h-sum-pausa-range').textContent = `${rec.pausaStart || '--:--'} - ${rec.pausaEnd || '--:--'}`;
+            } else {
+                document.getElementById('h-sum-pausa-block').classList.add('hidden');
+            }
         } else {
-            document.getElementById('h-note-text').value = rec.noteText;
+            document.getElementById('h-sum-hours-text').textContent = `0 Horas`;
+            document.getElementById('h-sum-time-range').textContent = `--:--`;
+            document.getElementById('h-sum-total-final').textContent = `0 Horas`;
+            document.getElementById('h-sum-ganancia').textContent = `0 $`;
+            document.getElementById('h-sum-pausa-block').classList.add('hidden');
         }
-        document.getElementById('h-btn-delete').classList.remove('hidden');
+        
+        document.getElementById('h-sum-nota-display').textContent = rec.noteText ? `NOTA: ${rec.noteText}` : 'NOTA: NINGUNA';
+        document.getElementById('h-summary-modal').style.display = 'flex';
+        vibrar(15);
+    } else {
+        abrirModalEdicionHorario(true);
+    }
+}
+
+function abrirModalEdicionHorario(direct = false) {
+    if (!direct) cerrarModal('h-summary-modal');
+    
+    const dateObj = new Date(hSelectedDateKey + "T12:00:00");
+    document.getElementById('h-edit-subtitle').textContent = dateObj.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+    document.getElementById('h-entry-date').value = hSelectedDateKey;
+    
+    const rec = misDatos.datos.horarios[hSelectedDateKey];
+    if (rec) {
+        document.getElementById('h-time-start').value = rec.start || '';
+        document.getElementById('h-time-end').value = rec.end || '';
+        document.getElementById('h-has-break').checked = rec.hasPausa || false;
+        document.getElementById('h-pausa-start').value = rec.pausaStart || '';
+        document.getElementById('h-pausa-end').value = rec.pausaEnd || '';
+        document.getElementById('h-note-text').value = rec.noteText || '';
     } else {
         document.getElementById('h-entry-form').reset();
-        document.getElementById('h-entry-type').value = 'shift';
-        document.getElementById('h-btn-delete').classList.add('hidden');
+        document.getElementById('h-has-break').checked = false;
     }
     
-    document.getElementById('h-entry-type').dispatchEvent(new Event('change'));
+    document.getElementById('h-has-break').dispatchEvent(new Event('change'));
     document.getElementById('h-entry-modal').style.display = 'flex';
     vibrar(15);
 }
 
-document.getElementById('h-entry-type').addEventListener('change', (e) => {
-    const isShift = e.target.value === 'shift';
-    document.getElementById('h-shift-fields').classList.toggle('hidden', !isShift);
-    document.getElementById('h-note-fields').classList.toggle('hidden', isShift);
-    document.getElementById('h-time-start').required = isShift;
-    document.getElementById('h-time-end').required = isShift;
+document.getElementById('h-has-break').addEventListener('change', (e) => {
+    document.getElementById('h-pausa-fields').classList.toggle('hidden', !e.target.checked);
 });
 
-function eliminarHorarioActual() {
-    const dateKey = document.getElementById('h-entry-date').value;
-    delete misDatos.datos.horarios[dateKey];
-    cerrarModal('h-entry-modal');
-    actualizarDashboardHorarios(); renderizarSemanaHorarios(); guardarEnMemoriaSession();
-    mostrarToast(); vibrar(20);
+function calcularDiferenciaHoras(start, end) {
+    const [hS, mS] = start.split(':').map(Number);
+    const [hE, mE] = end.split(':').map(Number);
+    let diff = (hE + mE/60) - (hS + mS/60);
+    if (diff < 0) diff += 24;
+    return diff;
 }
 
 document.getElementById('h-entry-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const dateKey = document.getElementById('h-entry-date').value;
-    const type = document.getElementById('h-entry-type').value;
+    const start = document.getElementById('h-time-start').value;
+    const end = document.getElementById('h-time-end').value;
+    const hasPausa = document.getElementById('h-has-break').checked;
+    const pStart = document.getElementById('h-pausa-start').value;
+    const pEnd = document.getElementById('h-pausa-end').value;
+    const note = document.getElementById('h-note-text').value.trim();
     
-    if (type === 'shift') {
-        const start = document.getElementById('h-time-start').value;
-        const end = document.getElementById('h-time-end').value;
-        const hasBreak = document.getElementById('h-has-break').checked;
-        
-        if (!start || !end) return mostrarAlerta("Error", "Debes ingresar hora de inicio y fin.");
-        
-        const [hS, mS] = start.split(':').map(Number);
-        const [hE, mE] = end.split(':').map(Number);
-        let diff = (hE + mE/60) - (hS + mS/60);
-        if (diff < 0) diff += 24;
-        if (hasBreak) diff = Math.max(0, diff - 1);
-        
-        misDatos.datos.horarios[dateKey] = { type, start, end, hasBreak, totalHours: diff.toFixed(2) };
+    if (!start && !end && !note) {
+        delete misDatos.datos.horarios[dateKey];
     } else {
-        const note = document.getElementById('h-note-text').value.trim();
-        if(!note) return mostrarAlerta("Error", "Ingresa el texto de la nota.");
-        misDatos.datos.horarios[dateKey] = { type, noteText: note };
+        let total = 0;
+        if (start && end) {
+            total = calcularDiferenciaHoras(start, end);
+            if (hasPausa && pStart && pEnd) {
+                let pDiff = calcularDiferenciaHoras(pStart, pEnd);
+                total = Math.max(0, total - pDiff);
+            }
+        }
+        misDatos.datos.horarios[dateKey] = {
+            start: start, end: end, hasPausa: hasPausa, pausaStart: pStart, pausaEnd: pEnd, totalHours: total > 0 ? total.toFixed(2) : null, noteText: note
+        };
     }
     
     cerrarModal('h-entry-modal');
-    actualizarDashboardHorarios(); renderizarSemanaHorarios(); guardarEnMemoriaSession();
+    actualizarDashboardHorarios(); renderizarCalendarioHorarios(); guardarEnMemoriaSession();
     mostrarToast(); vibrar(30);
 });
 
